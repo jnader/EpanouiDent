@@ -1,2 +1,6 @@
-opencv-contrib-python
+numpy
+opencv-contrib-python-headless
+onnxruntime
+pooch
 PySide2
+pymatting

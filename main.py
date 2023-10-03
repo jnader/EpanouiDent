@@ -1,7 +1,7 @@
 
 from PySide2.QtCore import QSize
 from PySide2.QtWidgets import QApplication
-from pages.main_page import MainPage
+from ui.pages.main_page import MainPage
 
 import sys
 

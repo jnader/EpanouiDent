@@ -1,0 +1,3 @@
+[submodule "external/rembg"]
+	path = external/rembg
+	url = https://github.com/danielgatis/rembg

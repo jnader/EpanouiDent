@@ -6,7 +6,7 @@ from PySide2.QtWidgets import QMainWindow, QPushButton, QWidget, QTextEdit, QSta
 from PySide2.QtWidgets import QHBoxLayout, QVBoxLayout
 from PySide2.QtCore import QSize
 
-from pages.image_processing import ImageProcessor
+from ui.pages.image_processing import ImageProcessor
 
 class MainPage(QMainWindow):
     def __init__(self, title : str, size : QSize):
