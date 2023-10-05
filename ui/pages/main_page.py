@@ -7,6 +7,7 @@ from PySide2.QtWidgets import QHBoxLayout, QVBoxLayout
 from PySide2.QtCore import QSize
 
 from ui.pages.image_processing import ImageProcessor
+from ui.pages.user_data_menu import UserData
 
 class MainPage(QMainWindow):
     def __init__(self, title : str, size : QSize):
@@ -25,6 +26,7 @@ class MainPage(QMainWindow):
         self.tab_widget.addTab(QPushButton("tab1"), "tab1")
         self.tab_widget.addTab(QPushButton("tab2"), "tab2")
         self.tab_widget.addTab(ImageProcessor(), "Image Proc.")
+        self.tab_widget.addTab(UserData(), "User data")
         h_layout.addWidget(self.tab_widget)
 
         main_widget = QWidget()

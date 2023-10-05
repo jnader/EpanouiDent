@@ -24,6 +24,7 @@ class ImageContainer(QLabel):
             image_path (str, optional): Image path
         """
         pixmap = QPixmap(fileName=image_path)
+        self.image_without_background = None
         self.setPixmap(pixmap)
         self.setAcceptDrops(True)
 
@@ -52,10 +53,10 @@ class ImageContainer(QLabel):
             return
 
         # Update and display pixmap
-        image_without_backroungd = remove_background(image_path=image_path)
-        print(image_without_backroungd.shape)
-        out_image = QImage(image_without_backroungd, image_without_backroungd.shape[1],\
-                        image_without_backroungd.shape[0], image_without_backroungd.shape[1] * 4,\
+        # TODO: Only create image without background and leave it internal. Display on other action.
+        self.image_without_backroungd = remove_background(image_path=image_path)
+        out_image = QImage(self.image_without_backroungd, self.image_without_backroungd.shape[1],\
+                        self.image_without_backroungd.shape[0], self.image_without_backroungd.shape[1] * 4,\
                         QImage.Format_RGBA8888)
         pixmap = QPixmap(out_image)
         self.setPixmap(pixmap.scaled(self.size(), Qt.KeepAspectRatio))
