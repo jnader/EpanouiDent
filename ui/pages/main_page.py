@@ -2,9 +2,9 @@
 Main page of EpanouiDent
 """
 
-from PySide2.QtWidgets import QMainWindow, QPushButton, QWidget, QTextEdit, QStackedWidget, QTabWidget, QStackedLayout
-from PySide2.QtWidgets import QHBoxLayout, QVBoxLayout
-from PySide2.QtCore import QSize
+from PySide6.QtWidgets import QMainWindow, QPushButton, QWidget, QTextEdit, QStackedWidget, QTabWidget, QStackedLayout
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+from PySide6.QtCore import QSize
 
 from ui.pages.image_processing import ImageProcessor
 from ui.pages.user_data_menu import UserData

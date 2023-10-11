@@ -4,8 +4,8 @@ from cx_Freeze import setup, Executable
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
-    "excludes": ["tkinter", "unittest"],
-    "zip_include_packages": ["encodings", "PySide2"],
+    "excludes": ["tkinter", "unittest", "PyQt6"],
+    "zip_include_packages": ["encodings"],
     "optimize": 1,
 }
 

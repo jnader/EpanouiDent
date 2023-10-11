@@ -6,8 +6,8 @@ TODO:
 2) Add to the right, a gimp-like window for removing background, writing with pen, etc...
 """
 
-from PySide2.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout
-from PySide2.QtGui import QPixmap
+from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout
+from PySide6.QtGui import QPixmap
 from ui.widgets.image_container import ImageContainer
 
 import os
