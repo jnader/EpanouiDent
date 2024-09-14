@@ -21,6 +21,7 @@ from PySide6.QtCore import QSize, Qt
 from ui.pages.image_processing import ImageProcessor
 from ui.pages.user_data_menu import UserData
 from ui.widgets.before_after_widget import BeforeAfter
+from ui.widgets.gallery import Gallery
 
 
 class MainPage(QMainWindow):
@@ -44,10 +45,14 @@ class MainPage(QMainWindow):
         self.tab_widget.addTab(UserData(), "User data")
         self.tab_widget.addTab(
             BeforeAfter(
-                image_path_after="/home/joudy/Pictures/images/frame_0_right.pgm",
-                image_path_before="/home/joudy/Pictures/images/frame_1_left.pgm",
+                image_path_after="<path-to-image-before>",
+                image_path_before="<path-to-image-after>",
             ),
             "Before/After",
+        )
+        self.tab_widget.addTab(
+            Gallery("<path-to-directory>"),
+            "Gallery",
         )
         h_layout.addWidget(self.tab_widget)
 

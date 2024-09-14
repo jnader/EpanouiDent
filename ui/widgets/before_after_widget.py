@@ -114,15 +114,19 @@ class BeforeAfter(QWidget):
             (self.selected_width, 0),
             (self.selected_width, self.original_height),
             (255, 255, 255),
-            3
+            3,
         )
+
+        w, h = self.pixmap_container.size().width(), self.pixmap_container.size().height()
+        final_image = cv2.resize(final_image, (w,h))
 
         final_qimage = QImage(
             final_image,
             final_image.shape[1],
             final_image.shape[0],
-            QImage.Format_RGB888,
+            QImage.Format_BGR888,
         )
+
         self.pixmap = QPixmap(final_qimage)
         self.pixmap_container.setPixmap(self.pixmap)
 
