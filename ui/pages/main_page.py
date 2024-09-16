@@ -43,13 +43,13 @@ class MainPage(QMainWindow):
             "Gallery",
         )
         self.tab_widget.addTab(ImageProcessor(self.base_path), "Image Proc.")
-        self.tab_widget.addTab(
-            BeforeAfter(
-                image_path_after="<path-to-old-image>",
-                image_path_before="<path-to-new-image>",
-            ),
-            "Before/After",
-        )
+        # self.tab_widget.addTab(
+        #     BeforeAfter(
+        #         image_path_after="<path-to-old-image>",
+        #         image_path_before="<path-to-new-image>",
+        #     ),
+        #     "Before/After",
+        # )
         h_layout.addWidget(self.tab_widget)
 
         h_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)

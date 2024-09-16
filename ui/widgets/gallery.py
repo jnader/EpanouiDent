@@ -48,9 +48,9 @@ class Gallery(QWidget):
                     pass
 
             print(f"{len(self.images)} found")
-            self.update()
+            self.update_gallery()
 
-    def update(self):
+    def update_gallery(self):
         """Updatess image gallery preview."""
         rows = len(self.images) // 4
         cols = 4 + len(self.images) % 4
@@ -78,10 +78,19 @@ class Gallery(QWidget):
     def update_directory(self, directory: str):
         """Updates gallery preview. Used when an object is created
         with unknown or empty directory.
+        Handles clearing previous images, image containers and selected images.
 
         Args:
             directory (str): Directory to be previewed.
         """
+        self.images = []
+        for widget in self.image_containers:
+            self.layout.removeWidget(widget)
+            widget.deleteLater()
+        self.image_containers = []
+        self.update()
+        self.selected_images = []
+
         self.directory = directory
         if not os.path.exists(self.directory):
             print("Directory does not exist.")
@@ -97,11 +106,10 @@ class Gallery(QWidget):
                     pass
 
             print(f"{len(self.images)} found")
-            self.update()
+            self.update_gallery()
 
     def image_selected(self, selected, id):
-        """Image selected event
-        """
+        """Image selected event"""
         if selected:
             # Add selected ID to list
             self.selected_images.append(id)
