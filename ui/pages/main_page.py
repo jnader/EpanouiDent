@@ -19,7 +19,6 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import QSize, Qt
 
 from ui.pages.image_processing import ImageProcessor
-from ui.pages.user_data_menu import UserData
 from ui.widgets.before_after_widget import BeforeAfter
 from ui.widgets.gallery import Gallery
 
@@ -35,23 +34,18 @@ class MainPage(QMainWindow):
         v_layout = QVBoxLayout()
 
         self.tab_widget = QTabWidget()
-        self.tab_widget.setTabPosition(QTabWidget.South)
-        self.tab_widget.setDocumentMode(True)
-        # Add as many pages (classes) as the software needs here
-        # Images should be added in .css format (instead of tab1, tab2 strings...)
-        # self.tab_widget.addTab(QPushButton("tab1"), "tab1")
-        # self.tab_widget.addTab(QPushButton("tab2"), "tab2")
+        self.tab_widget.setTabPosition(QTabWidget.West)
         self.tab_widget.addTab(ImageProcessor(self.base_path), "Image Proc.")
-        self.tab_widget.addTab(UserData(), "User data")
         self.tab_widget.addTab(
             BeforeAfter(
-                image_path_after="<path-to-image-before>",
-                image_path_before="<path-to-image-after>",
+                image_path_after="/home/joudy/Pictures/images/frame_0_right.pgm",
+                image_path_before="/home/joudy/Pictures/images/frame_1_left.pgm",
             ),
             "Before/After",
         )
+        # Embed in QScrollArea
         self.tab_widget.addTab(
-            Gallery("<path-to-directory>"),
+            Gallery("/home/joudy/Pictures/Manuel & Tania's wedding/"),
             "Gallery",
         )
         h_layout.addWidget(self.tab_widget)
