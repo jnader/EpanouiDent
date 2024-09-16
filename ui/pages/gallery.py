@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 from PySide6.QtGui import QIcon
+from typing import List
 
 from ui.widgets.gallery import Gallery
 
@@ -44,10 +45,12 @@ class GalleryPage(QWidget):
         self.button_explore.pressed.connect(self.button_pressed)
 
         layout.addWidget(self.scroll_area)
-        # layout.addWidget(self.gallery_preview)
         layout.addWidget(self.button_explore)
 
         self.setLayout(layout)
+
+        # Connect signals
+        self.gallery_preview.image_selected_signal.connect(self.image_selected)
 
     def button_pressed(self):
         """Button pressed event
@@ -60,3 +63,7 @@ class GalleryPage(QWidget):
         dialog.hide()
 
         self.gallery_preview.update_directory(directory_name)
+
+    def image_selected(self, list_of_names: List[str]):
+        """Image selection event."""
+        print(list_of_names)

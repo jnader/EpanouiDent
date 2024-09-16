@@ -5,7 +5,8 @@ The idea is to be used on a directory of images.
 import cv2
 import numpy as np
 import os
-from PySide6.QtWidgets import QWidget, QGridLayout, QSpacerItem, QSizePolicy
+from PySide6.QtCore import Signal
+from PySide6.QtWidgets import QWidget, QGridLayout
 from PySide6.QtGui import QImage
 from typing import List
 from ui.widgets.image_preview import ImagePreview
@@ -19,7 +20,9 @@ class Gallery(QWidget):
     images: List[np.ndarray]
     image_names: List[str]
     image_containers: List[ImagePreview]
-    selected_images: List[ImagePreview]
+    selected_images: List[str]
+
+    image_selected_signal = Signal(list)
 
     def __init__(self, directory: str):
         """Constructor of the class.
@@ -118,7 +121,9 @@ class Gallery(QWidget):
         """Image selected event"""
         if selected:
             # Add selected ID to list
-            self.selected_images.append(id)
+            self.selected_images.append(self.image_names[id])
         else:
             # Remove selected ID from list
-            self.selected_images.remove(id)
+            self.selected_images.remove(self.image_names[id])
+
+        self.image_selected_signal.emit(self.selected_images)
