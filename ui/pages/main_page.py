@@ -38,37 +38,20 @@ class MainPage(QMainWindow):
         self.tab_widget.addTab(ImageProcessor(self.base_path), "Image Proc.")
         self.tab_widget.addTab(
             BeforeAfter(
-                image_path_after="/home/joudy/Pictures/images/frame_0_right.pgm",
-                image_path_before="/home/joudy/Pictures/images/frame_1_left.pgm",
+                image_path_after="<path-to-old-image>",
+                image_path_before="<path-to-new-image>",
             ),
             "Before/After",
         )
         # Embed in QScrollArea
         self.tab_widget.addTab(
-            Gallery("/home/joudy/Pictures/Manuel & Tania's wedding/"),
+            Gallery("<path-to-directory>"),
             "Gallery",
         )
         h_layout.addWidget(self.tab_widget)
-
-        toolbar = QToolBar(parent=self)
-        toolbar.setFloatable(True)
-
-        button_action = QAction("Your button", self)
-        button_action.setStatusTip("Button Action")
-        button_action.triggered.connect(self.hi)
-        toolbar.addAction(button_action)
-
-        # menu_bar = QMenuBar(self)
-        # menu_bar.addAction("action1")
-        # menu_bar.addAction("action2")
 
         h_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_widget = QWidget()
         main_widget.setLayout(h_layout)
         self.setCentralWidget(main_widget)
-        self.addToolBar(toolbar)
 
-    def hi(self):
-        """Testing actions"""
-        msgbox = QMessageBox(text="Action triggered")
-        msgbox.exec()
