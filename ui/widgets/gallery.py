@@ -5,8 +5,8 @@ The idea is to be used on a directory of images.
 import cv2
 import numpy as np
 import os
-from PySide6.QtWidgets import QWidget, QGridLayout, QScrollArea
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtWidgets import QWidget, QGridLayout, QSpacerItem, QSizePolicy
+from PySide6.QtGui import QImage
 from typing import List
 from ui.widgets.image_preview import ImagePreview
 
@@ -27,25 +27,28 @@ class Gallery(QWidget):
             directory (str): Path to image directory.
         """
         super().__init__()
-        self.directory = directory
-        if not os.path.exists(self.directory):
-            print("Directory does not exist.")
 
         self.images = []
         self.image_containers = []
         self.selected_images = []
         self.layout = QGridLayout()
-        for file in os.listdir(self.directory):
-            try:
-                self.images.append(
-                    cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
-                )
-            except Exception as e:
-                print(e)
-                pass
 
-        print(f"{len(self.images)} found")
-        self.update()
+        self.directory = directory
+        if not os.path.exists(self.directory):
+            print("Directory does not exist.")
+
+        if os.path.exists(self.directory):
+            for file in os.listdir(self.directory):
+                try:
+                    self.images.append(
+                        cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
+                    )
+                except Exception as e:
+                    print(e)
+                    pass
+
+            print(f"{len(self.images)} found")
+            self.update()
 
     def update(self):
         """Updatess image gallery preview."""
@@ -72,6 +75,30 @@ class Gallery(QWidget):
 
         self.setLayout(self.layout)
 
+    def update_directory(self, directory: str):
+        """Updates gallery preview. Used when an object is created
+        with unknown or empty directory.
+
+        Args:
+            directory (str): Directory to be previewed.
+        """
+        self.directory = directory
+        if not os.path.exists(self.directory):
+            print("Directory does not exist.")
+
+        if os.path.exists(self.directory):
+            for file in os.listdir(self.directory):
+                try:
+                    self.images.append(
+                        cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
+                    )
+                except Exception as e:
+                    print(e)
+                    pass
+
+            print(f"{len(self.images)} found")
+            self.update()
+
     def image_selected(self, selected, id):
         """Image selected event
         """
@@ -81,5 +108,3 @@ class Gallery(QWidget):
         else:
             # Remove selected ID from list
             self.selected_images.remove(id)
-
-        print(self.selected_images)

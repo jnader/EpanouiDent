@@ -19,6 +19,7 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import QSize, Qt
 
 from ui.pages.image_processing import ImageProcessor
+from ui.pages.gallery import GalleryPage
 from ui.widgets.before_after_widget import BeforeAfter
 from ui.widgets.gallery import Gallery
 
@@ -35,6 +36,12 @@ class MainPage(QMainWindow):
 
         self.tab_widget = QTabWidget()
         self.tab_widget.setTabPosition(QTabWidget.West)
+        # Embed in QScrollArea
+        self.tab_widget.addTab(
+            # Gallery("/home/joudy/Pictures/Manuel & Tanias wedding/"),
+            GalleryPage(),
+            "Gallery",
+        )
         self.tab_widget.addTab(ImageProcessor(self.base_path), "Image Proc.")
         self.tab_widget.addTab(
             BeforeAfter(
@@ -42,11 +49,6 @@ class MainPage(QMainWindow):
                 image_path_before="<path-to-new-image>",
             ),
             "Before/After",
-        )
-        # Embed in QScrollArea
-        self.tab_widget.addTab(
-            Gallery("<path-to-directory>"),
-            "Gallery",
         )
         h_layout.addWidget(self.tab_widget)
 
