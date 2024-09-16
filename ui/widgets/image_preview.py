@@ -6,7 +6,7 @@ mouseHover events will be defined for this widget.
 
 import cv2
 import numpy as np
-from PySide6.QtCore import *
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox
 from PySide6.QtGui import QPixmap, QImage
 
@@ -17,21 +17,27 @@ class ImagePreview(QWidget):
     perform image processing.
     """
 
-    def __init__(self, q_image: QImage):
+    checkbox_toggled = Signal(bool, int)
+
+    def __init__(self, id: int, q_image: QImage):
         """Constructor of ImagePreview.
 
         Args:
+            id (int): ID of the widget.
             q_image (QImage): QImage object.
         """
         super().__init__()
         self.q_image = q_image
+        self.id = id
 
         # Step 1: Set up the layout and image container
         self.layout = QVBoxLayout()
+        self.checkbox = QCheckBox()
         self.image_container = QLabel()
         self.image_container.setAlignment(Qt.AlignCenter)
         self.layout.setContentsMargins(20, 20, 20, 20)
 
+        self.layout.addWidget(self.checkbox)
         self.layout.addWidget(self.image_container)
 
         self.setLayout(self.layout)
@@ -60,11 +66,11 @@ class ImagePreview(QWidget):
 
     def enterEvent(self, event):
         """Mouse Enter event"""
-        self.setStyleSheet("background-color: rgb(40, 127, 200)")
+        self.image_container.setStyleSheet("background-color: rgb(40, 127, 200)")
 
     def leaveEvent(self, event):
         """Mouse Leave event"""
-        self.setStyleSheet("background-color: transparent()")
+        self.image_container.setStyleSheet("background-color: transparent()")
 
     def mouseMoveEvent(self, event):
         """Mouse Move event
@@ -75,5 +81,10 @@ class ImagePreview(QWidget):
         """Mouse Press event
         Should check/uncheck the checkbox and update parent's selected files
         """
-        pass
+        if self.checkbox.isChecked():
+            self.checkbox.setChecked(False)
+        else:
+            self.checkbox.setChecked(True)
+
         # emit signals
+        self.checkbox_toggled.emit(self.checkbox.isChecked(), self.id)

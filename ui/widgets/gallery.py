@@ -5,7 +5,7 @@ The idea is to be used on a directory of images.
 import cv2
 import numpy as np
 import os
-from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QScrollArea
+from PySide6.QtWidgets import QWidget, QGridLayout, QScrollArea
 from PySide6.QtGui import QImage, QPixmap
 from typing import List
 from ui.widgets.image_preview import ImagePreview
@@ -17,7 +17,8 @@ class Gallery(QWidget):
     directory: str
     layout: QGridLayout
     images: List[np.ndarray]
-    image_containers: List[QLabel]
+    image_containers: List[ImagePreview]
+    selected_images: List[ImagePreview]
 
     def __init__(self, directory: str):
         """Constructor of the class.
@@ -32,6 +33,7 @@ class Gallery(QWidget):
 
         self.images = []
         self.image_containers = []
+        self.selected_images = []
         self.layout = QGridLayout()
         for file in os.listdir(self.directory):
             try:
@@ -62,9 +64,22 @@ class Gallery(QWidget):
                 QImage.Format_BGR888,
             )
 
-            image_container = ImagePreview(q_image=q_image)
+            image_container = ImagePreview(id=id, q_image=q_image)
+            image_container.checkbox_toggled.connect(self.image_selected)
             self.image_containers.append(image_container)
 
             self.layout.addWidget(self.image_containers[-1], i, j)
 
         self.setLayout(self.layout)
+
+    def image_selected(self, selected, id):
+        """Image selected event
+        """
+        if selected:
+            # Add selected ID to list
+            self.selected_images.append(id)
+        else:
+            # Remove selected ID from list
+            self.selected_images.remove(id)
+
+        print(self.selected_images)
