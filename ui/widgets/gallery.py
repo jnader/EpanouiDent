@@ -17,6 +17,7 @@ class Gallery(QWidget):
     directory: str
     layout: QGridLayout
     images: List[np.ndarray]
+    image_names: List[str]
     image_containers: List[ImagePreview]
     selected_images: List[ImagePreview]
 
@@ -29,6 +30,7 @@ class Gallery(QWidget):
         super().__init__()
 
         self.images = []
+        self.image_names = []
         self.image_containers = []
         self.selected_images = []
         self.layout = QGridLayout()
@@ -43,6 +45,7 @@ class Gallery(QWidget):
                     self.images.append(
                         cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
                     )
+                    self.image_names.append(os.path.join(self.directory, file))
                 except Exception as e:
                     print(e)
                     pass
@@ -64,10 +67,11 @@ class Gallery(QWidget):
                 img,
                 img.shape[1],
                 img.shape[0],
+                img.shape[1] * 3,
                 QImage.Format_BGR888,
             )
 
-            image_container = ImagePreview(id=id, q_image=q_image)
+            image_container = ImagePreview(id=id, q_image=q_image, name=self.image_names[id])
             image_container.checkbox_toggled.connect(self.image_selected)
             self.image_containers.append(image_container)
 
@@ -83,6 +87,7 @@ class Gallery(QWidget):
         Args:
             directory (str): Directory to be previewed.
         """
+        self.image_names = []
         self.images = []
         for widget in self.image_containers:
             self.layout.removeWidget(widget)
@@ -101,6 +106,7 @@ class Gallery(QWidget):
                     self.images.append(
                         cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
                     )
+                    self.image_names.append(os.path.join(self.directory, file))
                 except Exception as e:
                     print(e)
                     pass

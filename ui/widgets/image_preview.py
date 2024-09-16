@@ -19,7 +19,7 @@ class ImagePreview(QWidget):
 
     checkbox_toggled = Signal(bool, int)
 
-    def __init__(self, id: int, q_image: QImage):
+    def __init__(self, id: int, q_image: QImage, name: str):
         """Constructor of ImagePreview.
 
         Args:
@@ -29,11 +29,13 @@ class ImagePreview(QWidget):
         super().__init__()
         self.q_image = q_image
         self.id = id
+        self.name = name
 
         # Step 1: Set up the layout and image container
         self.layout = QVBoxLayout()
         self.checkbox = QCheckBox()
         self.image_container = QLabel()
+        self.image_container.setToolTip(self.name)
         self.image_container.setAlignment(Qt.AlignCenter)
         self.layout.setContentsMargins(20, 20, 20, 20)
 
@@ -57,8 +59,8 @@ class ImagePreview(QWidget):
         pixmap = QPixmap(self.q_image)
         self.image_container.setPixmap(
             pixmap.scaled(
-                self.width() - 40,
-                self.height() - 40,
+                self.width() - 50,
+                self.height() - 50,
                 Qt.KeepAspectRatio,
                 Qt.SmoothTransformation,
             )
@@ -66,7 +68,7 @@ class ImagePreview(QWidget):
 
     def enterEvent(self, event):
         """Mouse Enter event"""
-        self.image_container.setStyleSheet("background-color: rgb(40, 127, 200)")
+        self.image_container.setStyleSheet("background-color: rgba(40, 127, 200, 100)")
 
     def leaveEvent(self, event):
         """Mouse Leave event"""

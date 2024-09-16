@@ -25,6 +25,7 @@ class GalleryPage(QWidget):
         QWidget (_type_): _description_
     """
 
+    scroll_area: QScrollArea
     gallery_preview: Gallery
     button_explore: QPushButton
 
@@ -33,13 +34,17 @@ class GalleryPage(QWidget):
         super().__init__()
 
         layout = QVBoxLayout()
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)  # Make the scroll area resizable
         self.gallery_preview = Gallery("")
+        self.scroll_area.setWidget(self.gallery_preview)
 
         self.button_explore = QPushButton("Open Folder")
         self.button_explore.setIcon(QIcon.fromTheme("folder"))
         self.button_explore.pressed.connect(self.button_pressed)
 
-        layout.addWidget(self.gallery_preview)
+        layout.addWidget(self.scroll_area)
+        # layout.addWidget(self.gallery_preview)
         layout.addWidget(self.button_explore)
 
         self.setLayout(layout)
@@ -48,7 +53,10 @@ class GalleryPage(QWidget):
         """Button pressed event
         Load directory
         """
-        directory_name = QFileDialog.getExistingDirectory(self,
+        dialog = QFileDialog(self)
+        directory_name = dialog.getExistingDirectory(self,
             "Open Folder", os.path.expanduser("~"))
+
+        dialog.hide()
 
         self.gallery_preview.update_directory(directory_name)
