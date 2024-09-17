@@ -18,7 +18,7 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import QSize, Qt
 
-from ui.pages.image_processing import ImageProcessor
+from ui.pages.image_view_and_edit import ImageViewEdit
 from ui.pages.gallery import GalleryPage
 from ui.widgets.before_after_widget import BeforeAfter
 from ui.widgets.gallery import Gallery
@@ -42,7 +42,7 @@ class MainPage(QMainWindow):
             GalleryPage(),
             "Gallery",
         )
-        self.tab_widget.addTab(ImageProcessor(self.base_path), "Image Proc.")
+        self.tab_widget.addTab(ImageViewEdit(self.base_path), "Image Proc.")
         # self.tab_widget.addTab(
         #     BeforeAfter(
         #         image_path_after="<path-to-old-image>",

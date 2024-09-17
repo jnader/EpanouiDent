@@ -20,41 +20,6 @@ from PySide6.QtGui import (
 from backend.background_removal import remove_background
 
 
-class ImageProcessingSettings(QWidget):
-    """Custom widget for the buttons used in the image edit view
-
-    Args:
-        QWidget (_type_): Inherits from QWidget
-    """
-
-    def __init__(self, base_path: str):
-        """Constructor
-
-        Args:
-            base_path (str): Base path to main.py
-        """
-        super().__init__()
-        self.base_path = base_path
-        self.setFixedSize(100, 100)
-        grid_layout = QGridLayout()
-        self.draw_button = QPushButton(
-            icon=QIcon(os.path.join(self.base_path, "data", "icons", "draw.jpg"))
-        )
-        self.draw_button.setFixedSize(QSize(50, 50))
-        self.draw_button.setIconSize(QSize(50, 50))
-        # self.draw_button.clicked.connect(self.enable_drawing)
-        grid_layout.addWidget(self.draw_button, 1, 1)
-
-        self.text_button = QPushButton(
-            icon=QIcon(os.path.join(self.base_path, "data", "icons", "text.png"))
-        )
-        self.text_button.setFixedSize(QSize(50, 50))
-        self.text_button.setIconSize(QSize(50, 50))
-        # self.text_button.clicked.connect(self.enable_text)
-        grid_layout.addWidget(self.text_button, 2, 1)
-        self.setLayout(grid_layout)
-
-
 class ImageContainer(QLabel):
     def __init__(self, image_path: str = None):
         """Constructor

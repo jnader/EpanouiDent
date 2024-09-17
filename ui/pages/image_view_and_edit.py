@@ -15,15 +15,16 @@ from PySide6.QtWidgets import (
     QRadioButton,
     QColorDialog,
 )
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
-from ui.widgets.image_container import ImageContainer, ImageProcessingSettings
+from ui.widgets.image_container import ImageContainer
+from ui.widgets.image_edit_menu import ImageEditMenu
 
 import os
 import sys
 
 
-class ImageProcessor(QWidget):
+class ImageViewEdit(QWidget):
     def __init__(self, base_path: str):
         """Constructor
 
@@ -33,39 +34,42 @@ class ImageProcessor(QWidget):
         super().__init__()
         self.base_path = base_path
 
-        global_layout = QVBoxLayout()
+        self.global_layout = QVBoxLayout()
 
-        v_layout = QVBoxLayout()
+        widget = QWidget()
+        h_layout = QHBoxLayout()
         self.image_container = ImageContainer()
         self.image_container.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_layout.addWidget(self.image_container)
 
-        h_layout = QHBoxLayout()
-        self.save_button = QPushButton("Save")
-        self.load_button = QPushButton("Load")
-        h_layout.addWidget(self.save_button)
-        h_layout.addWidget(self.load_button)
+        self.image_edit_menu = ImageEditMenu()
 
+        h_layout.addWidget(self.image_container, stretch=6)
+        h_layout.addWidget(self.image_edit_menu, stretch=1)
+        widget.setLayout(h_layout)
 
-        # Control buttons
-        # TODO: To be placed in ImageProcessingSettings
-        self.remove_background = QRadioButton("Remove Background")
-        self.remove_background.toggled.connect(self.toggle_remove_background)
-        h_layout.addWidget(self.remove_background)
+        # # Control buttons
+        # # TODO: To be placed in ImageProcessingSettings
+        # self.remove_background = QRadioButton("Remove Background")
+        # self.remove_background.toggled.connect(self.toggle_remove_background)
+        # h_layout.addWidget(self.remove_background)
 
-        self.image_processing_settings = ImageProcessingSettings(self.base_path)
+        # self.image_processing_settings = ImageProcessingSettings(self.base_path)
 
-        # TODO: Not a clean way of doing it
-        self.image_processing_settings.draw_button.clicked.connect(self.enable_drawing)
-        self.image_processing_settings.text_button.clicked.connect(self.enable_text)
-        h_layout.addWidget(self.image_processing_settings)
-        h_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_layout.addLayout(h_layout)
-        global_layout.addLayout(v_layout)
+        # # TODO: Not a clean way of doing it
+        # self.image_processing_settings.draw_button.clicked.connect(self.enable_drawing)
+        # self.image_processing_settings.text_button.clicked.connect(self.enable_text)
+        # h_layout.addWidget(self.image_processing_settings)
+        # h_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # v_layout.addLayout(h_layout)
+        # self.global_layout.addLayout(v_layout)
 
-        global_layout.addWidget(self.image_processing_settings)
-        # global_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setLayout(global_layout)
+        self.save_button = QPushButton("Save image")
+        self.save_button.setIcon(QIcon.fromTheme("media-floppy"))
+
+        self.global_layout.addWidget(widget)
+        self.global_layout.addWidget(self.save_button)
+
+        self.setLayout(self.global_layout)
 
     def toggle_remove_background(self):
         """
