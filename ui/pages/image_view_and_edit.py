@@ -27,18 +27,18 @@ import sys
 
 
 class ImageViewEdit(QWidget):
-    def __init__(self, base_path: str):
+    def __init__(self, base_path: str = None):
         """Constructor
 
         Args:
-            base_path (str): Path to main.py
+            base_path (str, optional): Path to main.py
         """
         super().__init__()
         self.base_path = base_path
 
         self.global_layout = QGridLayout()
 
-        self.image_container = ImageContainer()
+        self.image_container = ImageContainer(base_path)
         self.image_container.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.image_edit_menu = ImageEditMenu()

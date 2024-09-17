@@ -23,6 +23,7 @@ class Gallery(QWidget):
     selected_images: List[str]
 
     image_selected_signal = Signal(list)
+    double_click_signal = Signal(str)
 
     def __init__(self, directory: str):
         """Constructor of the class.
@@ -74,10 +75,14 @@ class Gallery(QWidget):
                 QImage.Format_BGR888,
             )
 
-            image_container = ImagePreview(id=id, q_image=q_image, name=self.image_names[id])
+            image_container = ImagePreview(
+                id=id, q_image=q_image, name=self.image_names[id]
+            )
             image_container.checkbox_toggled.connect(self.image_selected)
+            image_container.double_click_signal.connect(self.image_double_clicked)
             self.image_containers.append(image_container)
 
+            # self.layout.setContentsMargins(20, 20, 20, 20)
             self.layout.addWidget(self.image_containers[-1], i, j)
 
         self.setLayout(self.layout)
@@ -127,3 +132,7 @@ class Gallery(QWidget):
             self.selected_images.remove(self.image_names[id])
 
         self.image_selected_signal.emit(self.selected_images)
+
+    def image_double_clicked(self, id):
+        """Event raised when double click detected on image."""
+        self.double_click_signal.emit(self.image_names[id])

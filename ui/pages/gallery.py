@@ -3,6 +3,7 @@ Page containing image gallery widget and directory selector, etc...
 """
 
 import os
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QWidget,
     QScrollArea,
@@ -25,6 +26,8 @@ class GalleryPage(QWidget):
     Args:
         QWidget (_type_): _description_
     """
+
+    double_click_signal = Signal(str)
 
     scroll_area: QScrollArea
     gallery_preview: Gallery
@@ -51,14 +54,16 @@ class GalleryPage(QWidget):
 
         # Connect signals
         self.gallery_preview.image_selected_signal.connect(self.image_selected)
+        self.gallery_preview.double_click_signal.connect(self.image_double_clicked)
 
     def button_pressed(self):
         """Button pressed event
         Load directory
         """
         dialog = QFileDialog(self)
-        directory_name = dialog.getExistingDirectory(self,
-            "Open Folder", os.path.expanduser("~"))
+        directory_name = dialog.getExistingDirectory(
+            self, "Open Folder", os.path.expanduser("~")
+        )
 
         dialog.hide()
 
@@ -67,3 +72,7 @@ class GalleryPage(QWidget):
     def image_selected(self, list_of_names: List[str]):
         """Image selection event."""
         print(list_of_names)
+
+    def image_double_clicked(self, filename):
+        """Image double clicked event."""
+        self.double_click_signal.emit(filename)

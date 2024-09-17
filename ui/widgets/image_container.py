@@ -33,7 +33,20 @@ class ImageContainer(QLabel):
         self.last_point = None
         self.enable_drawing = False
         self.enable_text = False
-        self.current_pixmap = QPixmap()
+
+        if os.path.exists(image_path):
+            image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+            out_image = QImage(
+                image,
+                image.shape[1],
+                image.shape[0],
+                image.shape[1] * 3,
+                QImage.Format_BGR888,
+            )
+            self.current_pixmap = QPixmap(out_image)
+        else:
+            self.current_pixmap = QPixmap()
+
         self.setup(image_path)
 
     def setup(self, image_path: str = None):

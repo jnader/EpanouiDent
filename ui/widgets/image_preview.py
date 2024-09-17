@@ -7,7 +7,7 @@ mouseHover events will be defined for this widget.
 import cv2
 import numpy as np
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox, QTextEdit
 from PySide6.QtGui import QPixmap, QImage
 
 
@@ -18,6 +18,7 @@ class ImagePreview(QWidget):
     """
 
     checkbox_toggled = Signal(bool, int)
+    double_click_signal = Signal(int)
 
     def __init__(self, id: int, q_image: QImage, name: str):
         """Constructor of ImagePreview.
@@ -30,17 +31,21 @@ class ImagePreview(QWidget):
         self.q_image = q_image
         self.id = id
         self.name = name
+        self.caption = None
+        self.old_timestamp = 0
 
-        # Step 1: Set up the layout and image container
         self.layout = QVBoxLayout()
         self.checkbox = QCheckBox()
         self.image_container = QLabel()
         self.image_container.setToolTip(self.name)
         self.image_container.setAlignment(Qt.AlignCenter)
+        self.image_container.setStyleSheet("border: 1px solid gray;")
         self.layout.setContentsMargins(20, 20, 20, 20)
+        # self.text_edit = QTextEdit("")
 
         self.layout.addWidget(self.checkbox)
         self.layout.addWidget(self.image_container)
+        # self.layout.addWidget(self.text)
 
         self.setLayout(self.layout)
 
@@ -68,11 +73,15 @@ class ImagePreview(QWidget):
 
     def enterEvent(self, event):
         """Mouse Enter event"""
-        self.image_container.setStyleSheet("background-color: rgba(40, 127, 200, 100)")
+        self.image_container.setStyleSheet(
+            "background-color: rgba(40, 127, 200, 100); border: 1px solid gray;"
+        )
 
     def leaveEvent(self, event):
         """Mouse Leave event"""
-        self.image_container.setStyleSheet("background-color: transparent()")
+        self.image_container.setStyleSheet(
+            "background-color: transparent(); border: 1px solid gray;"
+        )
 
     def mouseMoveEvent(self, event):
         """Mouse Move event
@@ -80,13 +89,29 @@ class ImagePreview(QWidget):
         pass
 
     def mousePressEvent(self, event):
-        """Mouse Press event
+        """Mouse Press event.
+        Handles also double-clicks now.
         Should check/uncheck the checkbox and update parent's selected files
+        TODO: Improve implementation.
         """
-        if self.checkbox.isChecked():
-            self.checkbox.setChecked(False)
-        else:
-            self.checkbox.setChecked(True)
+        current_timestamp = event.timestamp()
 
-        # emit signals
-        self.checkbox_toggled.emit(self.checkbox.isChecked(), self.id)
+        if self.old_timestamp == 0:
+            self.old_timestamp = current_timestamp
+
+        if (
+            current_timestamp - self.old_timestamp < 400
+            and current_timestamp - self.old_timestamp != 0
+        ):
+            # Double click detected
+            self.double_click_signal.emit(self.id)
+
+        else:
+            if self.checkbox.isChecked():
+                self.checkbox.setChecked(False)
+            else:
+                self.checkbox.setChecked(True)
+
+            self.checkbox_toggled.emit(self.checkbox.isChecked(), self.id)
+
+        self.old_timestamp = current_timestamp
