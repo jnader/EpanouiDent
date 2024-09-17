@@ -26,24 +26,18 @@ from PySide6.QtCore import Signal, Qt
 
 
 class ImageEditMenu(QWidget):
-    """Custom widget for the buttons used in the image edit view.
-
-    Args:
-        QWidget (_type_): Inherits from QWidget
-    """
+    """Custom widget for the buttons used in the image edit view."""
 
     enable_drawing_signal = Signal(bool)
     enable_text_edit_signal = Signal(bool)
     remove_background_signal = Signal(bool)
+    channel_gain_signal = Signal(str, int)
+    image_rotation_signal = Signal(int)
 
-    def __init__(
-        self,
-    ):
+    def __init__(self):
         """Construct and setup edit menu."""
         super().__init__()
         self.grid_layout = QGridLayout()
-        self.grid_layout.setContentsMargins(0, 0, 0, 0)
-        self.grid_layout.setSpacing(0)
 
         # Can be put inside a Widget with Horizontal layout to mark border.
         self.draw_button = QPushButton("Draw")
@@ -95,9 +89,10 @@ class ImageEditMenu(QWidget):
         )
 
         widget_angle = self.create_slider_widget("Angle", -90, 90)
-        self.grid_layout.addWidget(widget_angle, 5, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop)
+        self.grid_layout.addWidget(
+            widget_angle, 5, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
+        )
 
-        # self.setStyleSheet("border: 1px solid gray;")
         self.setLayout(self.grid_layout)
 
     def create_slider_widget(
@@ -142,7 +137,7 @@ class ImageEditMenu(QWidget):
             f"{channel_str.lower()}_slider"
         )
         getattr(self, f"{channel_str.lower()}_slider").valueChanged.connect(
-            self.channel_gain_changed
+            self.slider_value_changed
         )
 
         h_layout.addWidget(getattr(self, f"{channel_str.lower()}_checkbox"), stretch=1)
@@ -163,9 +158,10 @@ class ImageEditMenu(QWidget):
         """Remove background signal."""
         self.remove_background_signal.emit(self.remove_background_button.isChecked())
 
-    def channel_gain_changed(self, event):
+    def slider_value_changed(self, event):
         """Channel gain changed event."""
         sender = self.sender().objectName()
+        print(getattr(self, sender).value())
 
     def checkbox_clicked(self):
         """Channel gain checkbox clicked event."""
@@ -177,7 +173,3 @@ class ImageEditMenu(QWidget):
             getattr(self, f"{sender_identifier}_slider").setDisabled(False)
         else:
             getattr(self, f"{sender_identifier}_slider").setDisabled(True)
-
-    def rotate_image(self):
-        """Image rotation event."""
-        print(self.rotation_slider.value())

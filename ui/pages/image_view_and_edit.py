@@ -12,8 +12,10 @@ from PySide6.QtWidgets import (
     QLabel,
     QVBoxLayout,
     QHBoxLayout,
+    QGridLayout,
     QRadioButton,
     QColorDialog,
+    QFrame,
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
@@ -34,40 +36,19 @@ class ImageViewEdit(QWidget):
         super().__init__()
         self.base_path = base_path
 
-        self.global_layout = QVBoxLayout()
+        self.global_layout = QGridLayout()
 
-        widget = QWidget()
-        h_layout = QHBoxLayout()
         self.image_container = ImageContainer()
         self.image_container.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.image_edit_menu = ImageEditMenu()
 
-        h_layout.addWidget(self.image_container, stretch=6)
-        h_layout.addWidget(self.image_edit_menu, stretch=1)
-        widget.setLayout(h_layout)
-
-        # # Control buttons
-        # # TODO: To be placed in ImageProcessingSettings
-        # self.remove_background = QRadioButton("Remove Background")
-        # self.remove_background.toggled.connect(self.toggle_remove_background)
-        # h_layout.addWidget(self.remove_background)
-
-        # self.image_processing_settings = ImageProcessingSettings(self.base_path)
-
-        # # TODO: Not a clean way of doing it
-        # self.image_processing_settings.draw_button.clicked.connect(self.enable_drawing)
-        # self.image_processing_settings.text_button.clicked.connect(self.enable_text)
-        # h_layout.addWidget(self.image_processing_settings)
-        # h_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        # v_layout.addLayout(h_layout)
-        # self.global_layout.addLayout(v_layout)
+        self.global_layout.addWidget(self.image_container, 1, 1, -1, -1, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.global_layout.addWidget(self.image_edit_menu, 1, 5, 1, 1, alignment=Qt.AlignmentFlag.AlignTop)
 
         self.save_button = QPushButton("Save image")
         self.save_button.setIcon(QIcon.fromTheme("media-floppy"))
-
-        self.global_layout.addWidget(widget)
-        self.global_layout.addWidget(self.save_button)
+        self.global_layout.addWidget(self.save_button, 2, 1, -1, -1)
 
         self.setLayout(self.global_layout)
 
