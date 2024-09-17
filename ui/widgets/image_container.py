@@ -3,8 +3,9 @@ Custom image container widget
 """
 
 from PySide6.QtCore import Qt, QSize, QPoint
-from PySide6.QtWidgets import QLabel, QWidget, QGridLayout, QPushButton
+from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout, QPushButton
 import cv2
+import numpy as np
 import os
 from PySide6.QtGui import (
     QMouseEvent,
@@ -17,10 +18,20 @@ from PySide6.QtGui import (
     QColor,
     QIcon,
 )
+from typing import List
 from backend.background_removal import remove_background
 
 
-class ImageContainer(QLabel):
+class ImageContainer(QWidget):
+    """ ImageContainer class in which all image processing
+    will be supported:
+    - Image rotation
+    - Image crop
+    - Channel gain manipulation
+    - Drawing and Text edit
+    - Background removal
+
+    """
     def __init__(self, image_path: str = None):
         """Constructor
 
@@ -28,37 +39,62 @@ class ImageContainer(QLabel):
             image_path (str, optional): image_path. Defaults to None.
         """
         super().__init__()
+        layout = QVBoxLayout()
+        self.image_container = QLabel()
+        layout.addWidget(self.image_container)
+
         self.image_path = image_path
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.original_image = None
+        self.latest_updated_image = None
+        self.image_without_background = None
+        self.out_image = QImage()
         self.last_point = None
         self.enable_drawing = False
         self.enable_text = False
 
         if os.path.exists(image_path):
-            image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-            out_image = QImage(
-                image,
-                image.shape[1],
-                image.shape[0],
-                image.shape[1] * 3,
+            self.original_image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+            self.latest_updated_image = self.original_image
+            self.out_image = QImage(
+                self.latest_updated_image,
+                self.latest_updated_image.shape[1],
+                self.latest_updated_image.shape[0],
+                self.latest_updated_image.shape[1] * 3,
                 QImage.Format_BGR888,
             )
-            self.current_pixmap = QPixmap(out_image)
+            self.current_pixmap = QPixmap(self.out_image)
         else:
             self.current_pixmap = QPixmap()
 
-        self.setup(image_path)
-
-    def setup(self, image_path: str = None):
-        """Setup the image container
-
-        Args:
-            image_path (str, optional): Image path
-        """
-        self.original_image = None
-        self.image_without_background = None
-        self.setPixmap(self.current_pixmap)
+        self.image_container.setPixmap(
+            self.current_pixmap.scaled(
+                self.width(),
+                self.height(),
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation,
+            )
+        )
         self.setAcceptDrops(True)
+        self.setLayout(layout)
+
+    def update_image(self):
+        """Update the image display based on the widget's size."""
+        pixmap = QPixmap(self.out_image)
+        self.image_container.setPixmap(
+            pixmap.scaled(
+                self.width() - 50,
+                self.height() - 50,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation,
+            )
+        )
+
+    def resizeEvent(self, event):
+        """Resize event.
+        Update the image to fit the new size of the widget.
+        """
+        self.update_image()
+        super().resizeEvent(event)
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         """DragEnter event
@@ -90,6 +126,25 @@ class ImageContainer(QLabel):
         )
         self.reset_original_image()
         self.save_no_background_image()
+
+    def apply_channel_gains(self, gains: List[int]):
+        """Apply a list of gains provided in %.
+
+        Args:
+            gains (List[int]): List of gains to apply (R, G, B) order.
+        """
+        gains = np.array([x / 100. for x in gains])
+        new_image = cv2.xphoto.applyChannelGains(self.latest_updated_image, gains[2], gains[1], gains[0])
+        # TODO: needs normalization...
+        # new_image = self.latest_updated_image * gains
+        self.out_image = QImage(
+            new_image,
+            new_image.shape[1],
+            new_image.shape[0],
+            new_image.shape[1] * 3,
+            QImage.Format_BGR888,
+        )
+        self.update_image()
 
     def paintEvent(self, event):
         painter = QPainter(self)

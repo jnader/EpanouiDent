@@ -13,9 +13,11 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QGridLayout,
+    QScrollArea,
     QRadioButton,
     QColorDialog,
     QFrame,
+    QSizePolicy,
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
@@ -27,6 +29,12 @@ import sys
 
 
 class ImageViewEdit(QWidget):
+    """ Image View and Edit page containing the original image
+    with edit menu (buttons, sliders, etc...) for image manipulation.
+    """
+
+    scroll_area: QScrollArea
+
     def __init__(self, base_path: str = None):
         """Constructor
 
@@ -36,21 +44,29 @@ class ImageViewEdit(QWidget):
         super().__init__()
         self.base_path = base_path
 
-        self.global_layout = QGridLayout()
+        layout = QVBoxLayout()
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
 
         self.image_container = ImageContainer(base_path)
-        self.image_container.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.scroll_area.setWidget(self.image_container)
 
         self.image_edit_menu = ImageEditMenu()
+        self.image_edit_menu.channel_gain_signal.connect(self.channel_gain_changed)
 
-        self.global_layout.addWidget(self.image_container, 1, 1, -1, -1, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.global_layout.addWidget(self.image_edit_menu, 1, 5, 1, 1, alignment=Qt.AlignmentFlag.AlignTop)
+        widget = QWidget()
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(self.scroll_area, stretch=10)
+        h_layout.addWidget(self.image_edit_menu, stretch=1)
+        widget.setLayout(h_layout)
 
         self.save_button = QPushButton("Save image")
         self.save_button.setIcon(QIcon.fromTheme("media-floppy"))
-        self.global_layout.addWidget(self.save_button, 2, 1, -1, -1)
 
-        self.setLayout(self.global_layout)
+        layout.addWidget(widget)
+        layout.addWidget(self.save_button)
+
+        self.setLayout(layout)
 
     def toggle_remove_background(self):
         """
@@ -72,3 +88,12 @@ class ImageViewEdit(QWidget):
         """Enable text on image"""
         # self.image_processing_settings.text_button.setCheckable(self.image_processing_settings.text_button.isChecked())
         self.image_container.enable_text = True
+
+    def channel_gain_changed(self, value: int):
+        """Channel gain changed event handler.
+
+        Args:
+            sender (str): Slider name in menu.
+            value (int): New value of the slider
+        """
+        self.image_container.apply_channel_gains(value[:3])

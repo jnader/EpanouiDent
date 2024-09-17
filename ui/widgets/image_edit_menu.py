@@ -31,13 +31,14 @@ class ImageEditMenu(QWidget):
     enable_drawing_signal = Signal(bool)
     enable_text_edit_signal = Signal(bool)
     remove_background_signal = Signal(bool)
-    channel_gain_signal = Signal(str, int)
+    channel_gain_signal = Signal(list) # R, G, B, Angle
     image_rotation_signal = Signal(int)
 
     def __init__(self):
         """Construct and setup edit menu."""
         super().__init__()
         self.grid_layout = QGridLayout()
+        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
 
         # Can be put inside a Widget with Horizontal layout to mark border.
         self.draw_button = QPushButton("Draw")
@@ -158,13 +159,15 @@ class ImageEditMenu(QWidget):
         """Remove background signal."""
         self.remove_background_signal.emit(self.remove_background_button.isChecked())
 
-    def slider_value_changed(self, event):
+    def slider_value_changed(self):
         """Channel gain changed event."""
-        sender = self.sender().objectName()
-        print(getattr(self, sender).value())
+        names = ["red", "green", "blue", "angle"]
+        values = [getattr(self, f"{x}_slider").value() for x in names]
+        self.channel_gain_signal.emit(values)
 
     def checkbox_clicked(self):
-        """Channel gain checkbox clicked event."""
+        """Channel gain checkbox clicked event.
+        TODO: Modify checkbox to be added on the level of the section and not the slider."""
         sender: QCheckBox
         sender = self.sender()
         sender_identifier = sender.objectName().replace("_checkbox", "")
