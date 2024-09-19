@@ -37,6 +37,8 @@ class GalleryPage(QWidget):
         """Constructor"""
         super().__init__()
 
+        self.directory_name = None
+
         layout = QVBoxLayout()
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)  # Make the scroll area resizable
@@ -61,13 +63,13 @@ class GalleryPage(QWidget):
         Load directory
         """
         dialog = QFileDialog(self)
-        directory_name = dialog.getExistingDirectory(
+        self.directory_name = dialog.getExistingDirectory(
             self, "Open Folder", os.path.expanduser("~")
         )
 
         dialog.hide()
 
-        self.gallery_preview.update_directory(directory_name)
+        self.gallery_preview.update_directory(self.directory_name)
 
     def image_selected(self, list_of_names: List[str]):
         """Image selection event."""
@@ -76,3 +78,8 @@ class GalleryPage(QWidget):
     def image_double_clicked(self, filename):
         """Image double clicked event."""
         self.double_click_signal.emit(filename)
+
+    def sync_diff(self):
+        """Sync gallery widget for new files in the directory.
+        """
+        self.gallery_preview.sync_diff()

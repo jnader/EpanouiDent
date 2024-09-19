@@ -18,9 +18,10 @@ from PySide6.QtWidgets import (
     QColorDialog,
     QFrame,
     QSizePolicy,
+    QFileDialog
 )
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Signal
 from ui.widgets.image_container import ImageContainer
 from ui.widgets.image_edit_menu import ImageEditMenu
 
@@ -34,6 +35,7 @@ class ImageViewEdit(QWidget):
     """
 
     scroll_area: QScrollArea
+    image_saved_signal = Signal(str)
 
     def __init__(self, base_path: str = None):
         """Constructor
@@ -53,6 +55,7 @@ class ImageViewEdit(QWidget):
 
         self.image_edit_menu = ImageEditMenu()
         self.image_edit_menu.channel_gain_signal.connect(self.channel_gain_changed)
+        self.image_edit_menu.enable_drawing_signal.connect(self.enable_drawing)
 
         widget = QWidget()
         h_layout = QHBoxLayout()
@@ -62,6 +65,7 @@ class ImageViewEdit(QWidget):
 
         self.save_button = QPushButton("Save image")
         self.save_button.setIcon(QIcon.fromTheme("media-floppy"))
+        self.save_button.clicked.connect(self.save_image)
 
         layout.addWidget(widget)
         layout.addWidget(self.save_button)
@@ -79,10 +83,10 @@ class ImageViewEdit(QWidget):
             if self.image_container.image_path:
                 self.image_container.reset_original_image()
 
-    def enable_drawing(self):
-        """Enable drawing on image"""
+    def enable_drawing(self, state: bool):
+        """Enable drawing on image."""
         # self.image_processing_settings.draw_button.setCheckable(self.image_processing_settings.draw_button.isChecked())
-        self.image_container.enable_drawing = True
+        self.image_container.enable_drawing = state
 
     def enable_text(self):
         """Enable text on image"""
@@ -97,3 +101,23 @@ class ImageViewEdit(QWidget):
             value (int): New value of the slider
         """
         self.image_container.apply_channel_gains(value[:3])
+
+    def save_image(self):
+        """Save processed image.
+        """
+        self.image_container.save_image()
+
+    def save_image(self):
+        """Callback to save processed image."""
+        dialog = QFileDialog(self)
+        file_name = dialog.getSaveFileName(
+            self, "Save File", os.path.dirname(self.base_path)
+        )
+
+        ret = self.image_container.current_pixmap.toImage().save(
+            os.path.join(os.path.dirname(self.base_path), file_name[0])
+        )
+
+        if ret:
+            # Send signal to update gallery page.
+            self.image_saved_signal.emit(os.path.dirname(self.base_path))

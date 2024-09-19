@@ -60,7 +60,7 @@ class Gallery(QWidget):
     def update_gallery(self):
         """Updatess image gallery preview."""
         rows = len(self.images) // 4
-        cols = 4 + len(self.images) % 4
+        cols = 4
         print(f"Grid: {rows} x {cols}")
 
         for id, img in enumerate(self.images):
@@ -136,3 +136,18 @@ class Gallery(QWidget):
     def image_double_clicked(self, id):
         """Event raised when double click detected on image."""
         self.double_click_signal.emit(self.image_names[id])
+
+    def sync_diff(self):
+        """Sync directory for new files and update."""
+        for file in os.listdir(self.directory):
+            if os.path.join(self.directory, file) not in self.image_names:
+                try:
+                    self.images.append(
+                        cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
+                    )
+                    self.image_names.append(os.path.join(self.directory, file))
+                except Exception as e:
+                    print(e)
+                    pass
+
+        self.update_gallery()

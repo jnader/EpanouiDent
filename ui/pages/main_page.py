@@ -30,13 +30,16 @@ class MainPage(QMainWindow):
     """
 
     gallery_page: GalleryPage
+    opened_tab : int
 
     def __init__(self, title: str, size: QSize, base_path: str):
         """Constructor"""
         super().__init__()
+        self.opened_tab = 0
         self.base_path = base_path
         self.setWindowTitle(title)
-        self.setFixedSize(size)
+        # self.setFixedSize(size)
+        self.setMinimumSize(size)
 
         h_layout = QHBoxLayout()
 
@@ -70,5 +73,14 @@ class MainPage(QMainWindow):
         Args:
             filename (str): File name to open in ImageViewerEdit.
         """
-        self.tab_widget.addTab(ImageViewEdit(filename), "Image 1")
+        tab = ImageViewEdit(filename)
+        tab.image_saved_signal.connect(self.send_update_gallery_signal)
+        self.tab_widget.addTab(tab, f"Image {self.opened_tab}")
         self.tab_widget.setCurrentIndex(self.tab_widget.count() - 1)
+        self.opened_tab += 1
+
+    def send_update_gallery_signal(self, dir_name: str):
+        """Send signal to Gallery to update with new save images."""
+
+        if self.gallery_page.directory_name == dir_name:
+            self.gallery_page.sync_diff()
