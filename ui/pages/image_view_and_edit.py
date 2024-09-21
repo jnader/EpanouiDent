@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QFileDialog
 )
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QColor
 from PySide6.QtCore import Signal
 from ui.widgets.image_container import ImageContainer
 from ui.widgets.image_edit_menu import ImageEditMenu
@@ -83,10 +83,11 @@ class ImageViewEdit(QWidget):
             if self.image_container.image_path:
                 self.image_container.reset_original_image()
 
-    def enable_drawing(self, state: bool):
+    def enable_drawing(self, state: bool, pen_color: QColor):
         """Enable drawing on image."""
         # self.image_processing_settings.draw_button.setCheckable(self.image_processing_settings.draw_button.isChecked())
         self.image_container.enable_drawing = state
+        self.image_container.pen_color = pen_color
 
     def enable_text(self):
         """Enable text on image"""

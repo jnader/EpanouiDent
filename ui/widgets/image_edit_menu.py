@@ -19,16 +19,17 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QTextEdit,
     QSizePolicy,
+    QColorDialog,
     QLabel,
 )
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QColor
 from PySide6.QtCore import Signal, Qt
 
 
 class ImageEditMenu(QWidget):
     """Custom widget for the buttons used in the image edit view."""
 
-    enable_drawing_signal = Signal(bool)
+    enable_drawing_signal = Signal(bool, QColor)
     enable_text_edit_signal = Signal(bool)
     remove_background_signal = Signal(bool)
     channel_gain_signal = Signal(list) # R, G, B, Angle
@@ -149,7 +150,17 @@ class ImageEditMenu(QWidget):
 
     def enable_drawing(self):
         """Enable drawing signal."""
-        self.enable_drawing_signal.emit(self.draw_button.isChecked())
+        if self.draw_button.isChecked():
+            color_dialog = QColorDialog(parent=self)
+            color_dialog.colorSelected.connect(self.get_pen_selected)
+            color_dialog.open()
+
+        else:
+            self.enable_drawing_signal.emit(self.draw_button.isChecked(), None)
+
+    def get_pen_selected(self, color_selected: QColor):
+        """Get the selected color from dialog box"""
+        self.enable_drawing_signal.emit(self.draw_button.isChecked(), color_selected)
 
     def enable_text_edit(self):
         """Enable text edit signal."""
