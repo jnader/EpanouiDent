@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QColorDialog,
     QFrame,
     QSizePolicy,
-    QFileDialog
+    QFileDialog,
 )
 from PySide6.QtGui import QIcon, QColor
 from PySide6.QtCore import Signal
@@ -30,7 +30,7 @@ import sys
 
 
 class ImageViewEdit(QWidget):
-    """ Image View and Edit page containing the original image
+    """Image View and Edit page containing the original image
     with edit menu (buttons, sliders, etc...) for image manipulation.
     """
 
@@ -56,6 +56,7 @@ class ImageViewEdit(QWidget):
         self.image_edit_menu = ImageEditMenu()
         self.image_edit_menu.channel_gain_signal.connect(self.channel_gain_changed)
         self.image_edit_menu.enable_drawing_signal.connect(self.enable_drawing)
+        self.image_edit_menu.remove_background_signal.connect(self.remove_background)
 
         widget = QWidget()
         h_layout = QHBoxLayout()
@@ -72,17 +73,6 @@ class ImageViewEdit(QWidget):
 
         self.setLayout(layout)
 
-    def toggle_remove_background(self):
-        """
-        Triggered when remove background is clicked
-        """
-        if self.remove_background.isChecked():
-            if self.image_container.image_path:
-                self.image_container.remove_background()
-        else:
-            if self.image_container.image_path:
-                self.image_container.reset_original_image()
-
     def enable_drawing(self, state: bool, pen_color: QColor):
         """Enable drawing on image."""
         # self.image_processing_settings.draw_button.setCheckable(self.image_processing_settings.draw_button.isChecked())
@@ -94,6 +84,17 @@ class ImageViewEdit(QWidget):
         # self.image_processing_settings.text_button.setCheckable(self.image_processing_settings.text_button.isChecked())
         self.image_container.enable_text = True
 
+    def remove_background(self, state: bool):
+        """Remove background signal handler.
+
+        Args:
+            state (bool): Button state. If true, remove background, restore if False
+        """
+        if state:
+            self.image_container.remove_background()
+        else:
+            self.image_container.reset_original_image()
+
     def channel_gain_changed(self, value: int):
         """Channel gain changed event handler.
 
@@ -104,8 +105,7 @@ class ImageViewEdit(QWidget):
         self.image_container.apply_channel_gains(value[:3])
 
     def save_image(self):
-        """Save processed image.
-        """
+        """Save processed image."""
         self.image_container.save_image()
 
     def save_image(self):
