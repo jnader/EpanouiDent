@@ -46,6 +46,7 @@ class ImageContainer(QWidget):
         self.image_container.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.image_container)
 
+        self.image_container_current_size = self.image_container.size()
         self.image_path = image_path
         self.original_image = None
         self.latest_updated_image = None
@@ -95,9 +96,11 @@ class ImageContainer(QWidget):
         # else:
         #     self.image_container.setPixmap(self.current_pixmap)
         self.image_container.setPixmap(
-            self.current_pixmap  # .scaled(
-            # self.width(), self.height(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-            # )
+            self.current_pixmap.scaled(
+                self.image_container_current_size,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation,
+            )
         )
 
     # def resizeEvent(self, event):
@@ -117,6 +120,7 @@ class ImageContainer(QWidget):
                 Qt.SmoothTransformation,
             )
         )
+        self.image_container_current_size = self.image_container.size()
 
     # def dragEnterEvent(self, event: QDragEnterEvent) -> None:
     #     """DragEnter event
@@ -216,7 +220,7 @@ class ImageContainer(QWidget):
             QImage.Format_RGBA8888,
         )
         self.current_pixmap = QPixmap(out_image)
-        self.image_container.setPixmap(self.current_pixmap)  # .scaled(self.size(), Qt.KeepAspectRatio)
+        self.update_image()
 
     def reset_original_image(self):
         """
@@ -230,5 +234,64 @@ class ImageContainer(QWidget):
             QImage.Format_BGR888,
         )
         self.current_pixmap = QPixmap(out_image)
-        self.image_container.setPixmap(self.current_pixmap)  # .scaled(self.size(), Qt.KeepAspectRatio)
+        self.update_image()
 
+    def horizontal_flip(self):
+        """Flip image horizontally.
+        # TODO: Modify latest_updated_image?
+        """
+        self.latest_updated_image = cv2.flip(self.latest_updated_image, 0)
+        out_image = QImage(
+            self.latest_updated_image,
+            self.latest_updated_image.shape[1],
+            self.latest_updated_image.shape[0],
+            self.latest_updated_image.shape[1] * 3,
+            QImage.Format_BGR888,
+        )
+        self.current_pixmap = QPixmap(out_image)
+        self.update_image()
+
+    def vertical_flip(self):
+        """Flip image vertically.
+        # TODO: Modify latest_updated_image?
+        """
+        self.latest_updated_image = cv2.flip(self.latest_updated_image, 1)
+        out_image = QImage(
+            self.latest_updated_image,
+            self.latest_updated_image.shape[1],
+            self.latest_updated_image.shape[0],
+            self.latest_updated_image.shape[1] * 3,
+            QImage.Format_BGR888,
+        )
+        self.current_pixmap = QPixmap(out_image)
+        self.update_image()
+
+    def rotate_clockwise(self):
+        """Rotate image clockwise"""
+        self.latest_updated_image = cv2.rotate(
+            self.latest_updated_image, cv2.ROTATE_90_CLOCKWISE
+        )
+        out_image = QImage(
+            self.latest_updated_image,
+            self.latest_updated_image.shape[1],
+            self.latest_updated_image.shape[0],
+            self.latest_updated_image.shape[1] * 3,
+            QImage.Format_BGR888,
+        )
+        self.current_pixmap = QPixmap(out_image)
+        self.update_image()
+
+    def rotate_counter_clockwise(self):
+        """Rotate image counter clockwise"""
+        self.latest_updated_image = cv2.rotate(
+            self.latest_updated_image, cv2.ROTATE_90_COUNTERCLOCKWISE
+        )
+        out_image = QImage(
+            self.latest_updated_image,
+            self.latest_updated_image.shape[1],
+            self.latest_updated_image.shape[0],
+            self.latest_updated_image.shape[1] * 3,
+            QImage.Format_BGR888,
+        )
+        self.current_pixmap = QPixmap(out_image)
+        self.update_image()

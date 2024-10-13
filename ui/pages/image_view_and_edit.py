@@ -57,6 +57,12 @@ class ImageViewEdit(QWidget):
         self.image_edit_menu.channel_gain_signal.connect(self.channel_gain_changed)
         self.image_edit_menu.enable_drawing_signal.connect(self.enable_drawing)
         self.image_edit_menu.remove_background_signal.connect(self.remove_background)
+        self.image_edit_menu.flip_horizontal_signal.connect(self.flip_horizontal)
+        self.image_edit_menu.flip_vertical_signal.connect(self.flip_vertical)
+        self.image_edit_menu.rotate_clockwise_signal.connect(self.rotate_clockwise)
+        self.image_edit_menu.rotate_counter_clockwise_signal.connect(
+            self.rotate_counter_clockwise
+        )
 
         widget = QWidget()
         h_layout = QHBoxLayout()
@@ -94,6 +100,38 @@ class ImageViewEdit(QWidget):
             self.image_container.remove_background()
         else:
             self.image_container.reset_original_image()
+
+    def flip_horizontal(self, state: bool):
+        """Flip image horizontally
+
+        Args:
+            state (bool): Button state. If true, flip horizontally.
+        """
+        self.image_container.horizontal_flip()
+
+    def flip_vertical(self, state: bool):
+        """Flip image vertically
+
+        Args:
+            state (bool): Button state. If true, flip vertically.
+        """
+        self.image_container.vertical_flip()
+
+    def rotate_clockwise(self, state: bool):
+        """Rotate image clockwise
+
+        Args:
+            state (bool): Button state. If true, rotate clockwise.
+        """
+        self.image_container.rotate_clockwise()
+
+    def rotate_counter_clockwise(self, state: bool):
+        """Rotate image counter clockwise
+
+        Args:
+            state (bool): Button state. If true, rotate counter clockwise.
+        """
+        self.image_container.rotate_counter_clockwise()
 
     def channel_gain_changed(self, value: int):
         """Channel gain changed event handler.

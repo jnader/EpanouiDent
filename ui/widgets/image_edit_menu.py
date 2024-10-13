@@ -32,14 +32,20 @@ class ImageEditMenu(QWidget):
     enable_drawing_signal = Signal(bool, QColor)
     enable_text_edit_signal = Signal(bool)
     remove_background_signal = Signal(bool)
-    channel_gain_signal = Signal(list) # R, G, B, Angle
+    flip_horizontal_signal = Signal(bool)
+    flip_vertical_signal = Signal(bool)
+    rotate_clockwise_signal = Signal(bool)
+    rotate_counter_clockwise_signal = Signal(bool)
+    channel_gain_signal = Signal(list)  # R, G, B, Angle
     image_rotation_signal = Signal(int)
 
     def __init__(self):
         """Construct and setup edit menu."""
         super().__init__()
         self.grid_layout = QGridLayout()
-        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self.grid_layout.setAlignment(
+            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
+        )
 
         # Can be put inside a Widget with Horizontal layout to mark border.
         self.draw_button = QPushButton("Draw")
@@ -60,13 +66,33 @@ class ImageEditMenu(QWidget):
         self.remove_background_button.clicked.connect(self.remove_background)
         self.grid_layout.addWidget(self.remove_background_button, 1, 3)
 
+        self.flip_horizontal_button = QPushButton("Flip Horizontal")
+        self.flip_horizontal_button.setIcon(QIcon.fromTheme("flip-horizontal"))
+        self.flip_horizontal_button.clicked.connect(self.flip_horizontal)
+        self.grid_layout.addWidget(self.flip_horizontal_button, 2, 1)
+
+        self.flip_vertical_button = QPushButton("Flip Vertical")
+        self.flip_vertical_button.setIcon(QIcon.fromTheme("mirror"))
+        self.flip_vertical_button.clicked.connect(self.flip_vertical)
+        self.grid_layout.addWidget(self.flip_vertical_button, 2, 2)
+
+        self.rotate_clockwise_button = QPushButton("Rotate CW")
+        self.rotate_clockwise_button.setIcon(QIcon.fromTheme("arrow"))
+        self.rotate_clockwise_button.clicked.connect(self.rotate_clockwise)
+        self.grid_layout.addWidget(self.rotate_clockwise_button, 2, 3)
+
+        self.rotate_counter_clockwise_button = QPushButton("Rotate CCW")
+        self.rotate_counter_clockwise_button.setIcon(QIcon.fromTheme("arrow"))
+        self.rotate_counter_clockwise_button.clicked.connect(self.rotate_counter_clockwise)
+        self.grid_layout.addWidget(self.rotate_counter_clockwise_button, 2, 4)
+
         # Channel gain widget.
         widget = QWidget()
         v_layout = QVBoxLayout()
 
         label_channel_gains = QLabel("Edit Channel Gains")
         self.grid_layout.addWidget(
-            label_channel_gains, 2, 1, -1, -1, alignment=Qt.AlignmentFlag.AlignTop
+            label_channel_gains, 3, 1, -1, -1, alignment=Qt.AlignmentFlag.AlignTop
         )
 
         widget_r = self.create_slider_widget("Red", 0, 100)
@@ -81,18 +107,18 @@ class ImageEditMenu(QWidget):
         widget.setLayout(v_layout)
         # widget.setStyleSheet("border: 1px solid gray;")
         self.grid_layout.addWidget(
-            widget, 3, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
+            widget, 4, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
         )
 
         # Image rotation widget
         label_rotate = QLabel("Rotate image")
         self.grid_layout.addWidget(
-            label_rotate, 4, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
+            label_rotate, 5, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
         )
 
         widget_angle = self.create_slider_widget("Angle", -90, 90)
         self.grid_layout.addWidget(
-            widget_angle, 5, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
+            widget_angle, 6, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
         )
 
         self.setLayout(self.grid_layout)
@@ -187,3 +213,19 @@ class ImageEditMenu(QWidget):
             getattr(self, f"{sender_identifier}_slider").setDisabled(False)
         else:
             getattr(self, f"{sender_identifier}_slider").setDisabled(True)
+
+    def flip_horizontal(self):
+        """Flip horizontal button clicked event"""
+        self.flip_horizontal_signal.emit(True)
+
+    def flip_vertical(self):
+        """Flip vertical button clicked event"""
+        self.flip_vertical_signal.emit(True)
+
+    def rotate_clockwise(self):
+        """Rotate clockwise button clicked event"""
+        self.rotate_clockwise_signal.emit(True)
+
+    def rotate_counter_clockwise(self):
+        """Rotate counter clockwise button clicked event"""
+        self.rotate_counter_clockwise_signal.emit(True)
