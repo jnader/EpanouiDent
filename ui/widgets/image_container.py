@@ -17,6 +17,7 @@ from PySide6.QtGui import (
     QPainter,
     QColor,
     QIcon,
+    QPen,
 )
 from typing import List
 from backend.background_removal import remove_background
@@ -61,6 +62,7 @@ class ImageContainer(QWidget):
         self.enable_drawing_circle = False
         self.enable_drawing_rectangle = False
         self.pen_color = QColor("black")
+        self.brush_size = 1
         self.first_point = None
         self.last_point = None
 
@@ -213,11 +215,17 @@ class ImageContainer(QWidget):
         return QPoint(image_x, image_y)
 
     def mouseMoveEvent(self, ev: QMouseEvent) -> None:
+        """Called when the user moves the mouse while it's pressed.
+        TODO: Convert from image_container's coordinates to pixmap's.
+
+        Args:
+            ev (QMouseEvent): Event data related to the mouse's position.
+        """
         # self.last_point = ev.position()
         self.last_point = self.map_to_image_coords(ev.position())
         tmp_pixmap = self.current_pixmap.copy()
         with QPainter(tmp_pixmap) as painter:
-            painter.setPen(self.pen_color)
+            painter.setPen(QPen(self.pen_color, self.brush_size))
             if self.first_point:
                 if self.enable_drawing_rectangle:
                     rect = QRect(
@@ -232,7 +240,7 @@ class ImageContainer(QWidget):
                 elif self.enable_drawing_circle:
                     radius = (self.last_point - self.first_point).manhattanLength() // 2
                     center = self.first_point + (self.last_point - self.first_point) / 2
-                    painter.drawEllipse(center.toPoint(), radius, radius)
+                    painter.drawEllipse(center, radius, radius)
                     self.update_image(tmp_pixmap)
 
                 elif self.enable_drawing_horizontal_line:
@@ -263,18 +271,25 @@ class ImageContainer(QWidget):
                     self.update_image(tmp_pixmap)
 
     def mousePressEvent(self, ev: QMouseEvent) -> None:
+        """Called when the user initiates a mouse press/move event.
+        TODO: Convert from image_container's coordinates to pixmap's.
+
+        Args:
+            ev (QMouseEvent): Event data related to the mouse's position.
+        """
         # self.first_point = ev.position()
         self.first_point = self.map_to_image_coords(ev.position())
 
     def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
         """Called when the user releases the mouse and thus applies
         the last draw shape.
+        TODO: Convert from image_container's coordinates to pixmap's.
 
         Args:
             ev (QMouseEvent): Event data related to the mouse's position.
         """
         with QPainter(self.current_pixmap) as painter:
-            painter.setPen(self.pen_color)
+            painter.setPen(QPen(self.pen_color, self.brush_size))
             if self.first_point:
                 if self.enable_drawing_rectangle:
                     rect = QRect(
@@ -289,7 +304,7 @@ class ImageContainer(QWidget):
                 elif self.enable_drawing_circle:
                     radius = (self.last_point - self.first_point).manhattanLength() // 2
                     center = self.first_point + (self.last_point - self.first_point) / 2
-                    painter.drawEllipse(center.toPoint(), radius, radius)
+                    painter.drawEllipse(center, radius, radius)
                     self.update_image()
 
                 elif self.enable_drawing_horizontal_line:
@@ -318,6 +333,14 @@ class ImageContainer(QWidget):
                         self.last_point.y(),
                     )
                     self.update_image()
+
+        out_image = self.current_pixmap.toImage()
+        out_image = out_image.convertToFormat(QImage.Format_BGR888)
+        ptr = out_image.bits()
+
+        self.latest_updated_image = np.array(ptr).reshape(
+            out_image.height(), out_image.width(), 3
+        )
 
     def remove_background(self):
         """

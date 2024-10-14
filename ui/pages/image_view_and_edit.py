@@ -73,6 +73,7 @@ class ImageViewEdit(QWidget):
         self.image_edit_menu.rotate_counter_clockwise_signal.connect(
             self.rotate_counter_clockwise
         )
+        self.image_edit_menu.paint_brush_size_signal.connect(self.paint_brush_size_changed)
 
         widget = QWidget()
         h_layout = QHBoxLayout()
@@ -88,6 +89,14 @@ class ImageViewEdit(QWidget):
         layout.addWidget(self.save_button)
 
         self.setLayout(layout)
+
+    def paint_brush_size_changed(self, new_brush_size: int):
+        """Change paint brush size.
+
+        Args:
+            new_brush_size (int): Value of the new brush in pixels.
+        """
+        self.image_container.brush_size = new_brush_size
 
     def enable_drawing_line(self, state: bool, pen_color: QColor):
         """Enable drawing line on image."""
@@ -170,9 +179,9 @@ class ImageViewEdit(QWidget):
         """
         self.image_container.apply_channel_gains(value[:3])
 
-    def save_image(self):
-        """Save processed image."""
-        self.image_container.save_image()
+    # def save_image(self):
+    #     """Save processed image."""
+    #     self.image_container.save_image()
 
     def save_image(self):
         """Callback to save processed image."""
