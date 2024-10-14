@@ -55,7 +55,17 @@ class ImageViewEdit(QWidget):
 
         self.image_edit_menu = ImageEditMenu()
         self.image_edit_menu.channel_gain_signal.connect(self.channel_gain_changed)
-        self.image_edit_menu.enable_drawing_signal.connect(self.enable_drawing)
+        self.image_edit_menu.draw_rectangle_signal.connect(
+            self.enable_drawing_rectangle
+        )
+        self.image_edit_menu.draw_circle_signal.connect(self.enable_drawing_circle)
+        self.image_edit_menu.draw_horizontal_line_signal.connect(
+            self.enable_drawing_horizontal_line
+        )
+        self.image_edit_menu.draw_vertical_line_signal.connect(
+            self.enable_drawing_vertical_line
+        )
+        self.image_edit_menu.draw_line_signal.connect(self.enable_drawing_line)
         self.image_edit_menu.remove_background_signal.connect(self.remove_background)
         self.image_edit_menu.flip_horizontal_signal.connect(self.flip_horizontal)
         self.image_edit_menu.flip_vertical_signal.connect(self.flip_vertical)
@@ -79,15 +89,33 @@ class ImageViewEdit(QWidget):
 
         self.setLayout(layout)
 
-    def enable_drawing(self, state: bool, pen_color: QColor):
-        """Enable drawing on image."""
-        # self.image_processing_settings.draw_button.setCheckable(self.image_processing_settings.draw_button.isChecked())
-        self.image_container.enable_drawing = state
+    def enable_drawing_line(self, state: bool, pen_color: QColor):
+        """Enable drawing line on image."""
+        self.image_container.enable_drawing_line = state
+        self.image_container.pen_color = pen_color
+
+    def enable_drawing_horizontal_line(self, state: bool, pen_color: QColor):
+        """Enable drawing horizontal line on image."""
+        self.image_container.enable_drawing_horizontal_line = state
+        self.image_container.pen_color = pen_color
+
+    def enable_drawing_vertical_line(self, state: bool, pen_color: QColor):
+        """Enable drawing vertical line on image."""
+        self.image_container.enable_drawing_vertical_line = state
+        self.image_container.pen_color = pen_color
+
+    def enable_drawing_rectangle(self, state: bool, pen_color: QColor):
+        """Enable drawing rectangle on image."""
+        self.image_container.enable_drawing_rectangle = state
+        self.image_container.pen_color = pen_color
+
+    def enable_drawing_circle(self, state: bool, pen_color: QColor):
+        """Enable drawing circle on image."""
+        self.image_container.enable_drawing_circle = state
         self.image_container.pen_color = pen_color
 
     def enable_text(self):
         """Enable text on image"""
-        # self.image_processing_settings.text_button.setCheckable(self.image_processing_settings.text_button.isChecked())
         self.image_container.enable_text = True
 
     def remove_background(self, state: bool):

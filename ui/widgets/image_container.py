@@ -2,7 +2,7 @@
 Custom image container widget
 """
 
-from PySide6.QtCore import Qt, QPoint
+from PySide6.QtCore import Qt, QPoint, QRect
 from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout
 import cv2
 import numpy as np
@@ -53,8 +53,17 @@ class ImageContainer(QWidget):
         self.image_without_background = None
         self.out_image = QImage()
         self.last_point = None
-        self.enable_drawing = False
-        self.pen_color = None
+
+        # Drawing flags and variables
+        self.enable_drawing_line = False
+        self.enable_drawing_horizontal_line = False
+        self.enable_drawing_vertical_line = False
+        self.enable_drawing_circle = False
+        self.enable_drawing_rectangle = False
+        self.pen_color = QColor("black")
+        self.first_point = None
+        self.last_point = None
+
         self.enable_text = False
 
         if os.path.exists(image_path):
@@ -77,9 +86,16 @@ class ImageContainer(QWidget):
         self.setAcceptDrops(True)
         self.setLayout(layout)
 
-    def update_image(self):
+    def update_image(self, pixmap: QPixmap = None):
         """Update the image display based on the widget's size.
-        TODO: There's an issue, it redraws for all iterations."""
+        TODO: There's an issue, it redraws for all iterations.
+        This function should only update the view with a given pixmap not just
+        self.current_pixmap.
+
+        Args:
+            pixmap (QPixmap, optional): Pixmap to assign to the image container.
+                                        If None, assign self.current_pixmap
+        """
         # if (
         #     self.out_image.size().width() > self.width()
         #     or self.out_image.size().height() > self.height()
@@ -95,8 +111,11 @@ class ImageContainer(QWidget):
 
         # else:
         #     self.image_container.setPixmap(self.current_pixmap)
+        if not pixmap:
+            pixmap = self.current_pixmap
+
         self.image_container.setPixmap(
-            self.current_pixmap.scaled(
+            pixmap.scaled(
                 self.image_container_current_size,
                 Qt.KeepAspectRatio,
                 Qt.SmoothTransformation,
@@ -179,33 +198,126 @@ class ImageContainer(QWidget):
     #     painter = QPainter(self)
     #     painter.drawPixmap(self.current_pixmap.rect(), self.current_pixmap)
 
+    def map_to_image_coords(self, mouse_pos):
+        image_container_size = self.image_container.size()
+        pixmap_size = self.image_container.pixmap().size()
+
+        # Calculate scale ratios
+        scale_x = pixmap_size.width() / image_container_size.width()
+        scale_y = pixmap_size.height() / image_container_size.height()
+
+        # Map image_container coordinates to pixmap coordinates
+        image_x = mouse_pos.x() * scale_x
+        image_y = mouse_pos.y() * scale_y
+
+        return QPoint(image_x, image_y)
+
     def mouseMoveEvent(self, ev: QMouseEvent) -> None:
-        if not self.enable_drawing:
-            return
-        if not self.current_pixmap:
-            return
-        painter = QPainter(self.current_pixmap)
-        painter.setPen(self.pen_color)
-        if self.last_point:
-            painter.drawLine(
-                self.last_point, QPoint(ev.position().x(), ev.position().y())
-            )
+        # self.last_point = ev.position()
+        self.last_point = self.map_to_image_coords(ev.position())
+        tmp_pixmap = self.current_pixmap.copy()
+        with QPainter(tmp_pixmap) as painter:
+            painter.setPen(self.pen_color)
+            if self.first_point:
+                if self.enable_drawing_rectangle:
+                    rect = QRect(
+                        min(self.first_point.x(), self.last_point.x()),
+                        min(self.first_point.y(), self.last_point.y()),
+                        abs(self.first_point.x() - self.last_point.x()),
+                        abs(self.first_point.y() - self.last_point.y()),
+                    )
+                    painter.drawRect(rect)
+                    self.update_image(tmp_pixmap)
 
-        self.last_point = QPoint(ev.position().x(), ev.position().y())
-        self.update_image()
+                elif self.enable_drawing_circle:
+                    radius = (self.last_point - self.first_point).manhattanLength() // 2
+                    center = self.first_point + (self.last_point - self.first_point) / 2
+                    painter.drawEllipse(center.toPoint(), radius, radius)
+                    self.update_image(tmp_pixmap)
 
-    # def mousePressEvent(self, ev: QMouseEvent) -> None:
-    #     if not self.enable_drawing:
-    #         return
-    #     if not self.current_pixmap or not self.enable_drawing:
-    #         return
-    #     painter = QPainter(self.current_pixmap)
-    #     painter.setPen(QColor.fromRgb(255, 0, 0, 255))
-    #     painter.drawPoint(ev.position().x(), ev.position().y())
-    #     self.update()
+                elif self.enable_drawing_horizontal_line:
+                    painter.drawLine(
+                        self.first_point.x(),
+                        self.first_point.y(),
+                        self.last_point.x(),
+                        self.first_point.y(),
+                    )
+                    self.update_image(tmp_pixmap)
 
-    # def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
-    #     self.last_point = None
+                elif self.enable_drawing_vertical_line:
+                    painter.drawLine(
+                        self.first_point.x(),
+                        self.first_point.y(),
+                        self.first_point.x(),
+                        self.last_point.y(),
+                    )
+                    self.update_image(tmp_pixmap)
+
+                elif self.enable_drawing_line:
+                    painter.drawLine(
+                        self.first_point.x(),
+                        self.first_point.y(),
+                        self.last_point.x(),
+                        self.last_point.y(),
+                    )
+                    self.update_image(tmp_pixmap)
+
+    def mousePressEvent(self, ev: QMouseEvent) -> None:
+        # self.first_point = ev.position()
+        self.first_point = self.map_to_image_coords(ev.position())
+
+    def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
+        """Called when the user releases the mouse and thus applies
+        the last draw shape.
+
+        Args:
+            ev (QMouseEvent): Event data related to the mouse's position.
+        """
+        with QPainter(self.current_pixmap) as painter:
+            painter.setPen(self.pen_color)
+            if self.first_point:
+                if self.enable_drawing_rectangle:
+                    rect = QRect(
+                        min(self.first_point.x(), self.last_point.x()),
+                        min(self.first_point.y(), self.last_point.y()),
+                        abs(self.first_point.x() - self.last_point.x()),
+                        abs(self.first_point.y() - self.last_point.y()),
+                    )
+                    painter.drawRect(rect)
+                    self.update_image()
+
+                elif self.enable_drawing_circle:
+                    radius = (self.last_point - self.first_point).manhattanLength() // 2
+                    center = self.first_point + (self.last_point - self.first_point) / 2
+                    painter.drawEllipse(center.toPoint(), radius, radius)
+                    self.update_image()
+
+                elif self.enable_drawing_horizontal_line:
+                    painter.drawLine(
+                        self.first_point.x(),
+                        self.first_point.y(),
+                        self.last_point.x(),
+                        self.first_point.y(),
+                    )
+                    self.update_image()
+
+                elif self.enable_drawing_vertical_line:
+                    painter.drawLine(
+                        self.first_point.x(),
+                        self.first_point.y(),
+                        self.first_point.x(),
+                        self.last_point.y(),
+                    )
+                    self.update_image()
+
+                elif self.enable_drawing_line:
+                    painter.drawLine(
+                        self.first_point.x(),
+                        self.first_point.y(),
+                        self.last_point.x(),
+                        self.last_point.y(),
+                    )
+                    self.update_image()
 
     def remove_background(self):
         """
@@ -240,7 +352,7 @@ class ImageContainer(QWidget):
         """Flip image horizontally.
         # TODO: Modify latest_updated_image?
         """
-        self.latest_updated_image = cv2.flip(self.latest_updated_image, 0)
+        self.latest_updated_image = cv2.flip(self.latest_updated_image, 1)
         out_image = QImage(
             self.latest_updated_image,
             self.latest_updated_image.shape[1],
@@ -255,7 +367,7 @@ class ImageContainer(QWidget):
         """Flip image vertically.
         # TODO: Modify latest_updated_image?
         """
-        self.latest_updated_image = cv2.flip(self.latest_updated_image, 1)
+        self.latest_updated_image = cv2.flip(self.latest_updated_image, 0)
         out_image = QImage(
             self.latest_updated_image,
             self.latest_updated_image.shape[1],

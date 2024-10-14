@@ -29,7 +29,13 @@ from PySide6.QtCore import Signal, Qt
 class ImageEditMenu(QWidget):
     """Custom widget for the buttons used in the image edit view."""
 
-    enable_drawing_signal = Signal(bool, QColor)
+    # TODO: replace QColor by QPen maybe? (Brush size, etc...)
+    draw_horizontal_line_signal = Signal(bool, QColor)
+    draw_vertical_line_signal = Signal(bool, QColor)
+    draw_line_signal = Signal(bool, QColor)
+    draw_rectangle_signal = Signal(bool, QColor)
+    draw_circle_signal = Signal(bool, QColor)
+
     enable_text_edit_signal = Signal(bool)
     remove_background_signal = Signal(bool)
     flip_horizontal_signal = Signal(bool)
@@ -47,44 +53,91 @@ class ImageEditMenu(QWidget):
             Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         )
 
+        self.drawing_widgets_list = []
+        self.widget_to_signal_mapping = {}
+
         # Can be put inside a Widget with Horizontal layout to mark border.
-        self.draw_button = QPushButton("Draw")
-        self.draw_button.setCheckable(True)
-        self.draw_button.setIcon(QIcon.fromTheme("edit-pencil"))
-        self.draw_button.clicked.connect(self.enable_drawing)
-        self.grid_layout.addWidget(self.draw_button, 1, 1)
+        self.draw_circle_button = QPushButton("O")
+        self.draw_circle_button.setCheckable(True)
+        self.draw_circle_button.setIcon(QIcon.fromTheme(""))
+        self.draw_circle_button.clicked.connect(self.draw_circle)
+        self.widget_to_signal_mapping[self.draw_circle_button] = self.draw_circle_signal
+        self.drawing_widgets_list.append(self.draw_circle_button)
+        self.grid_layout.addWidget(self.draw_circle_button, 1, 1)
+
+        self.draw_rectangle_button = QPushButton("Rectangle")
+        self.draw_rectangle_button.setCheckable(True)
+        self.draw_rectangle_button.setIcon(QIcon.fromTheme(""))
+        self.draw_rectangle_button.clicked.connect(self.draw_rectangle)
+        self.widget_to_signal_mapping[
+            self.draw_rectangle_button
+        ] = self.draw_rectangle_signal
+        self.drawing_widgets_list.append(self.draw_rectangle_button)
+        self.grid_layout.addWidget(self.draw_rectangle_button, 1, 2)
+
+        self.draw_horizontal_line_button = QPushButton("--")
+        self.draw_horizontal_line_button.setCheckable(True)
+        self.draw_horizontal_line_button.setIcon(QIcon.fromTheme(""))
+        self.draw_horizontal_line_button.clicked.connect(self.draw_horizontal_line)
+        self.widget_to_signal_mapping[
+            self.draw_horizontal_line_button
+        ] = self.draw_horizontal_line_signal
+        self.drawing_widgets_list.append(self.draw_horizontal_line_button)
+        self.grid_layout.addWidget(self.draw_horizontal_line_button, 1, 3)
+
+        self.draw_vertical_line_button = QPushButton("|")
+        self.draw_vertical_line_button.setCheckable(True)
+        self.draw_vertical_line_button.setIcon(QIcon.fromTheme(""))
+        self.draw_vertical_line_button.clicked.connect(self.draw_vertical_line)
+        self.widget_to_signal_mapping[
+            self.draw_vertical_line_button
+        ] = self.draw_vertical_line_signal
+        self.drawing_widgets_list.append(self.draw_vertical_line_button)
+        self.grid_layout.addWidget(self.draw_vertical_line_button, 1, 4)
+
+        self.draw_line_button = QPushButton("\\")
+        self.draw_line_button.setCheckable(True)
+        self.draw_line_button.setIcon(QIcon.fromTheme(""))
+        self.draw_line_button.clicked.connect(self.draw_line)
+        self.widget_to_signal_mapping[self.draw_line_button] = self.draw_line_signal
+        self.drawing_widgets_list.append(self.draw_line_button)
+        self.grid_layout.addWidget(self.draw_line_button, 1, 5)
 
         self.text_edit_button = QPushButton("Enter text")
         self.text_edit_button.setCheckable(True)
         self.text_edit_button.setIcon(QIcon.fromTheme("text-edit"))
         self.text_edit_button.clicked.connect(self.enable_text_edit)
-        self.grid_layout.addWidget(self.text_edit_button, 1, 2)
+        self.grid_layout.addWidget(self.text_edit_button, 2, 1)
 
         self.remove_background_button = QPushButton("Remove background")
         self.remove_background_button.setCheckable(True)
         self.remove_background_button.setIcon(QIcon.fromTheme("background"))
         self.remove_background_button.clicked.connect(self.remove_background)
-        self.grid_layout.addWidget(self.remove_background_button, 1, 3)
+        self.grid_layout.addWidget(self.remove_background_button, 2, 2)
 
-        self.flip_horizontal_button = QPushButton("Flip Horizontal")
-        self.flip_horizontal_button.setIcon(QIcon.fromTheme("flip-horizontal"))
+        self.flip_horizontal_button = QPushButton("")
+        self.flip_horizontal_button.setIcon(QIcon.fromTheme("object-flip-horizontal"))
         self.flip_horizontal_button.clicked.connect(self.flip_horizontal)
-        self.grid_layout.addWidget(self.flip_horizontal_button, 2, 1)
+        self.grid_layout.addWidget(self.flip_horizontal_button, 3, 1)
 
-        self.flip_vertical_button = QPushButton("Flip Vertical")
-        self.flip_vertical_button.setIcon(QIcon.fromTheme("mirror"))
+        self.flip_vertical_button = QPushButton("")
+        self.flip_vertical_button.setIcon(QIcon.fromTheme("object-flip-vertical"))
         self.flip_vertical_button.clicked.connect(self.flip_vertical)
-        self.grid_layout.addWidget(self.flip_vertical_button, 2, 2)
+        self.grid_layout.addWidget(self.flip_vertical_button, 3, 2)
 
-        self.rotate_clockwise_button = QPushButton("Rotate CW")
-        self.rotate_clockwise_button.setIcon(QIcon.fromTheme("arrow"))
+        self.rotate_clockwise_button = QPushButton("")
+        self.rotate_clockwise_button.setIcon(QIcon.fromTheme("object-rotate-left"))
         self.rotate_clockwise_button.clicked.connect(self.rotate_clockwise)
-        self.grid_layout.addWidget(self.rotate_clockwise_button, 2, 3)
+        self.grid_layout.addWidget(self.rotate_clockwise_button, 3, 3)
 
-        self.rotate_counter_clockwise_button = QPushButton("Rotate CCW")
-        self.rotate_counter_clockwise_button.setIcon(QIcon.fromTheme("arrow"))
-        self.rotate_counter_clockwise_button.clicked.connect(self.rotate_counter_clockwise)
-        self.grid_layout.addWidget(self.rotate_counter_clockwise_button, 2, 4)
+        self.rotate_counter_clockwise_button = QPushButton("")
+        self.rotate_counter_clockwise_button.setIcon(
+            QIcon.fromTheme("object-rotate-right")
+        )
+        self.rotate_counter_clockwise_button.clicked.connect(
+            self.rotate_counter_clockwise
+        )
+        self.grid_layout.addWidget(self.rotate_counter_clockwise_button, 3, 4)
 
         # Channel gain widget.
         widget = QWidget()
@@ -92,7 +145,7 @@ class ImageEditMenu(QWidget):
 
         label_channel_gains = QLabel("Edit Channel Gains")
         self.grid_layout.addWidget(
-            label_channel_gains, 3, 1, -1, -1, alignment=Qt.AlignmentFlag.AlignTop
+            label_channel_gains, 4, 1, -1, -1, alignment=Qt.AlignmentFlag.AlignTop
         )
 
         widget_r = self.create_slider_widget("Red", 0, 100)
@@ -107,18 +160,18 @@ class ImageEditMenu(QWidget):
         widget.setLayout(v_layout)
         # widget.setStyleSheet("border: 1px solid gray;")
         self.grid_layout.addWidget(
-            widget, 4, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
+            widget, 5, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
         )
 
         # Image rotation widget
         label_rotate = QLabel("Rotate image")
         self.grid_layout.addWidget(
-            label_rotate, 5, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
+            label_rotate, 6, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
         )
 
         widget_angle = self.create_slider_widget("Angle", -90, 90)
         self.grid_layout.addWidget(
-            widget_angle, 6, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
+            widget_angle, 7, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
         )
 
         self.setLayout(self.grid_layout)
@@ -174,19 +227,84 @@ class ImageEditMenu(QWidget):
         widget.setLayout(h_layout)
         return widget
 
-    def enable_drawing(self):
-        """Enable drawing signal."""
-        if self.draw_button.isChecked():
+    def control_draw_buttons(self, sender: QPushButton):
+        """Inverse other widgets' state when a widget is checked."""
+        widget: QPushButton
+        for i, widget in enumerate(self.drawing_widgets_list):
+            if widget == sender:
+                continue
+            widget.setChecked(False)
+
+    def draw_horizontal_line(self):
+        """Enable drawing horizontal line."""
+        self.control_draw_buttons(self.sender())
+        if self.draw_horizontal_line_button.isChecked():
             color_dialog = QColorDialog(parent=self)
             color_dialog.colorSelected.connect(self.get_pen_selected)
             color_dialog.open()
 
         else:
-            self.enable_drawing_signal.emit(self.draw_button.isChecked(), None)
+            self.draw_horizontal_line_signal.emit(
+                self.draw_horizontal_line_button.isChecked(), None
+            )
+
+    def draw_vertical_line(self):
+        """Enable drawing vertucal line."""
+        self.control_draw_buttons(self.sender())
+        if self.draw_vertical_line_button.isChecked():
+            color_dialog = QColorDialog(parent=self)
+            color_dialog.colorSelected.connect(self.get_pen_selected)
+            color_dialog.open()
+
+        else:
+            self.draw_vertical_line_signal.emit(
+                self.draw_vertical_line_button.isChecked(), None
+            )
+
+    def draw_line(self):
+        """Enable drawing random orientation line."""
+        self.control_draw_buttons(self.sender())
+        if self.draw_line_button.isChecked():
+            color_dialog = QColorDialog(parent=self)
+            color_dialog.colorSelected.connect(self.get_pen_selected)
+            color_dialog.open()
+
+        else:
+            self.draw_line_signal.emit(
+                self.draw_line_button.isChecked(), None
+            )
+
+    def draw_rectangle(self):
+        """Enable drawing rectangle."""
+        self.control_draw_buttons(self.sender())
+        if self.draw_rectangle_button.isChecked():
+            color_dialog = QColorDialog(parent=self)
+            color_dialog.colorSelected.connect(self.get_pen_selected)
+            color_dialog.open()
+
+        else:
+            self.draw_rectangle_signal.emit(
+                self.draw_rectangle_button.isChecked(), None
+            )
+
+    def draw_circle(self):
+        """Enable drawing circle."""
+        self.control_draw_buttons(self.sender())
+        if self.draw_circle_button.isChecked():
+            color_dialog = QColorDialog(parent=self)
+            color_dialog.colorSelected.connect(self.get_pen_selected)
+            color_dialog.open()
+
+        else:
+            self.draw_circle_signal.emit(
+                self.draw_circle_button.isChecked(), None
+            )
 
     def get_pen_selected(self, color_selected: QColor):
         """Get the selected color from dialog box"""
-        self.enable_drawing_signal.emit(self.draw_button.isChecked(), color_selected)
+        widget: QPushButton
+        for widget in self.drawing_widgets_list:
+            self.widget_to_signal_mapping[widget].emit(widget.isChecked(), color_selected)
 
     def enable_text_edit(self):
         """Enable text edit signal."""
