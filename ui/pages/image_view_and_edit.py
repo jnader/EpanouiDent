@@ -74,6 +74,7 @@ class ImageViewEdit(QWidget):
             self.rotate_counter_clockwise
         )
         self.image_edit_menu.paint_brush_size_signal.connect(self.paint_brush_size_changed)
+        self.image_edit_menu.enable_text_edit_signal.connect(self.enable_text)
 
         widget = QWidget()
         h_layout = QHBoxLayout()

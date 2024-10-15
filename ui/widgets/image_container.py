@@ -10,6 +10,7 @@ import os
 from PySide6.QtGui import (
     QMouseEvent,
     QPixmap,
+    QKeyEvent,
     QDropEvent,
     QDragEnterEvent,
     QImageReader,
@@ -45,6 +46,7 @@ class ImageContainer(QWidget):
         self.image_container = QLabel()
         self.image_container.setStyleSheet("border: 1px solid gray")
         self.image_container.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.image_container.setFocusPolicy(Qt.StrongFocus)
         layout.addWidget(self.image_container)
 
         self.image_container_current_size = self.image_container.size()
@@ -65,7 +67,8 @@ class ImageContainer(QWidget):
         self.brush_size = 1
         self.first_point = None
         self.last_point = None
-
+        self.rect = None
+        self.current_text = ""
         self.enable_text = False
 
         if os.path.exists(image_path):
@@ -214,6 +217,24 @@ class ImageContainer(QWidget):
 
         return QPoint(image_x, image_y)
 
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        """Called whenever a key is pressed"""
+        tmp_pixmap = self.current_pixmap.copy()
+        with QPainter(tmp_pixmap) as painter:
+            painter.setPen(QPen(self.pen_color, self.brush_size))
+            if self.first_point:
+                if self.enable_text:
+                    if event.key() == Qt.Key.Key_Backspace:
+                        self.current_text = self.current_text[:-1]
+                    elif event.key() in [Qt.Key.Key_Enter, Qt.Key.Key_Return]:
+                        self.current_text += "\n"
+                    elif event.text():
+                        self.current_text += chr(event.key())
+
+                    painter.drawText(self.rect, self.current_text)
+                    painter.drawRect(self.rect)
+                    self.update_image(tmp_pixmap)
+
     def mouseMoveEvent(self, ev: QMouseEvent) -> None:
         """Called when the user moves the mouse while it's pressed.
         TODO: Convert from image_container's coordinates to pixmap's.
@@ -227,14 +248,14 @@ class ImageContainer(QWidget):
         with QPainter(tmp_pixmap) as painter:
             painter.setPen(QPen(self.pen_color, self.brush_size))
             if self.first_point:
-                if self.enable_drawing_rectangle:
-                    rect = QRect(
+                if self.enable_drawing_rectangle or self.enable_text:
+                    self.rect = QRect(
                         min(self.first_point.x(), self.last_point.x()),
                         min(self.first_point.y(), self.last_point.y()),
                         abs(self.first_point.x() - self.last_point.x()),
                         abs(self.first_point.y() - self.last_point.y()),
                     )
-                    painter.drawRect(rect)
+                    painter.drawRect(self.rect)
                     self.update_image(tmp_pixmap)
 
                 elif self.enable_drawing_circle:
@@ -280,6 +301,22 @@ class ImageContainer(QWidget):
         # self.first_point = ev.position()
         self.first_point = self.map_to_image_coords(ev.position())
 
+        # If text edit enabled, write the final version of the text.
+        if self.enable_text:
+            with QPainter(self.current_pixmap) as painter:
+                painter.setPen(QPen(self.pen_color, self.brush_size))
+                if (
+                    self.first_point
+                    and self.current_text is not None
+                    and len(self.current_text) > 0
+                ):
+                    print(f"text: {self.current_text}")
+                    painter.drawText(self.rect, self.current_text)
+                    painter.drawRect(self.rect)
+                    self.update_image()
+
+        self.current_text = ""
+
     def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
         """Called when the user releases the mouse and thus applies
         the last draw shape.
@@ -291,14 +328,14 @@ class ImageContainer(QWidget):
         with QPainter(self.current_pixmap) as painter:
             painter.setPen(QPen(self.pen_color, self.brush_size))
             if self.first_point:
-                if self.enable_drawing_rectangle:
-                    rect = QRect(
+                if self.enable_drawing_rectangle or (self.enable_text and self.current_text != ""):
+                    self.rect = QRect(
                         min(self.first_point.x(), self.last_point.x()),
                         min(self.first_point.y(), self.last_point.y()),
                         abs(self.first_point.x() - self.last_point.x()),
                         abs(self.first_point.y() - self.last_point.y()),
                     )
-                    painter.drawRect(rect)
+                    painter.drawRect(self.rect)
                     self.update_image()
 
                 elif self.enable_drawing_circle:

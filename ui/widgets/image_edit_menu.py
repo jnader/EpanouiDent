@@ -35,8 +35,8 @@ class ImageEditMenu(QWidget):
     draw_line_signal = Signal(bool, QColor)
     draw_rectangle_signal = Signal(bool, QColor)
     draw_circle_signal = Signal(bool, QColor)
+    enable_text_edit_signal = Signal(bool, QColor)
 
-    enable_text_edit_signal = Signal(bool)
     remove_background_signal = Signal(bool)
     flip_horizontal_signal = Signal(bool)
     flip_vertical_signal = Signal(bool)
@@ -122,6 +122,8 @@ class ImageEditMenu(QWidget):
         self.text_edit_button.setCheckable(True)
         self.text_edit_button.setIcon(QIcon.fromTheme("text-edit"))
         self.text_edit_button.clicked.connect(self.enable_text_edit)
+        self.drawing_widgets_list.append(self.text_edit_button)
+        self.widget_to_signal_mapping[self.text_edit_button] = self.enable_text_edit_signal
         self.grid_layout.addWidget(self.text_edit_button, row_increment, 1)
 
         self.remove_background_button = QPushButton("Remove background")
@@ -328,7 +330,14 @@ class ImageEditMenu(QWidget):
 
     def enable_text_edit(self):
         """Enable text edit signal."""
-        self.enable_text_edit_signal.emit(self.text_edit_button.isChecked())
+        self.control_draw_buttons(self.sender())
+        if self.text_edit_button.isChecked():
+            color_dialog = QColorDialog(parent=self)
+            color_dialog.colorSelected.connect(self.get_pen_selected)
+            color_dialog.open()
+
+        else:
+            self.enable_text_edit_signal.emit(self.text_edit_button.isChecked(), None)
 
     def remove_background(self):
         """Remove background signal."""
