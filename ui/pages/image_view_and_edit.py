@@ -20,8 +20,8 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QFileDialog,
 )
-from PySide6.QtGui import QIcon, QColor
-from PySide6.QtCore import Signal
+from PySide6.QtGui import QIcon, QColor, QKeyEvent
+from PySide6.QtCore import Signal, Qt
 from ui.widgets.image_container import ImageContainer
 from ui.widgets.image_edit_menu import ImageEditMenu
 
@@ -90,6 +90,7 @@ class ImageViewEdit(QWidget):
         layout.addWidget(self.save_button)
 
         self.setLayout(layout)
+        self.setFocusPolicy(Qt.StrongFocus)
 
     def paint_brush_size_changed(self, new_brush_size: int):
         """Change paint brush size.
@@ -124,9 +125,10 @@ class ImageViewEdit(QWidget):
         self.image_container.enable_drawing_circle = state
         self.image_container.pen_color = pen_color
 
-    def enable_text(self):
+    def enable_text(self, state: bool, pen_color: QColor):
         """Enable text on image"""
-        self.image_container.enable_text = True
+        self.image_container.enable_text = state
+        self.image_container.pen_color = pen_color
 
     def remove_background(self, state: bool):
         """Remove background signal handler.
@@ -198,3 +200,13 @@ class ImageViewEdit(QWidget):
         if ret:
             # Send signal to update gallery page.
             self.image_saved_signal.emit(os.path.dirname(self.base_path))
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        """Called whenever a key is pressed"""
+        data = event.keyCombination()
+        if data.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
+            if data.key() == Qt.Key.Key_Z:
+                self.image_container.undo_image_manipulation()
+            elif data.key() == Qt.Key.Key_Y:
+                self.image_container.redo_image_manipulation()
+            return

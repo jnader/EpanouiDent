@@ -2,7 +2,7 @@
 Custom image container widget
 """
 
-from PySide6.QtCore import Qt, QPoint, QRect
+from PySide6.QtCore import Qt, QPoint, QRect, QKeyCombination
 from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout
 import cv2
 import numpy as np
@@ -21,6 +21,7 @@ from PySide6.QtGui import (
     QPen,
 )
 from typing import List
+from collections import deque
 from backend.background_removal import remove_background
 
 
@@ -57,6 +58,9 @@ class ImageContainer(QWidget):
         self.out_image = QImage()
         self.last_point = None
 
+        # Undo/Redo stack handling
+        self.pixmap_undo_stack = deque([])
+
         # Drawing flags and variables
         self.enable_drawing_line = False
         self.enable_drawing_horizontal_line = False
@@ -84,6 +88,7 @@ class ImageContainer(QWidget):
                 QImage.Format_BGR888,
             )
             self.current_pixmap = QPixmap(self.out_image)
+            self.update_undo_stack()
         else:
             self.current_pixmap = QPixmap()
 
@@ -196,6 +201,8 @@ class ImageContainer(QWidget):
             new_image.shape[1] * 3,
             QImage.Format_BGR888,
         )
+        self.update_undo_stack()
+        print(f"stack length: {len(self.pixmap_undo_stack)}")
         self.current_pixmap = QPixmap(self.out_image)
         self.update_image()
 
@@ -219,6 +226,14 @@ class ImageContainer(QWidget):
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         """Called whenever a key is pressed"""
+        data = event.keyCombination()
+        if data.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
+            if data.key() == Qt.Key.Key_Z:
+                self.undo_image_manipulation()
+            elif data.key() == Qt.Key.Key_Y:
+                self.redo_image_manipulation()
+            return
+
         tmp_pixmap = self.current_pixmap.copy()
         with QPainter(tmp_pixmap) as painter:
             painter.setPen(QPen(self.pen_color, self.brush_size))
@@ -234,6 +249,22 @@ class ImageContainer(QWidget):
                     painter.drawText(self.rect, self.current_text)
                     painter.drawRect(self.rect)
                     self.update_image(tmp_pixmap)
+
+    def undo_image_manipulation(self):
+        """Undo latest modification."""
+        if len(self.pixmap_undo_stack) > 0:
+            self.current_pixmap = self.pixmap_undo_stack.pop()
+            print(f"Undo: {len(self.pixmap_undo_stack)}, Redo: {len(self.pixmap_redo_stack)}")
+            self.pixmap_redo_stack.append(self.current_pixmap.copy())
+            self.update_image()
+
+    # def redo_image_manipulation(self):
+    #     """Redo latest modification."""
+    #     if len(self.pixmap_redo_stack) > 0:
+    #         self.current_pixmap = self.pixmap_redo_stack.pop()
+    #         print(f"Undo: {len(self.pixmap_undo_stack)}, Redo: {len(self.pixmap_redo_stack)}")
+    #         self.update_undo_stack()
+    #         self.update_image()
 
     def mouseMoveEvent(self, ev: QMouseEvent) -> None:
         """Called when the user moves the mouse while it's pressed.
@@ -328,23 +359,31 @@ class ImageContainer(QWidget):
         with QPainter(self.current_pixmap) as painter:
             painter.setPen(QPen(self.pen_color, self.brush_size))
             if self.first_point:
-                if self.enable_drawing_rectangle or (self.enable_text and self.current_text != ""):
+                if self.enable_drawing_rectangle or (
+                    self.enable_text and self.current_text != ""
+                ):
                     self.rect = QRect(
                         min(self.first_point.x(), self.last_point.x()),
                         min(self.first_point.y(), self.last_point.y()),
                         abs(self.first_point.x() - self.last_point.x()),
                         abs(self.first_point.y() - self.last_point.y()),
                     )
+                    self.update_undo_stack()
+                    print(f"stack length: {len(self.pixmap_undo_stack)}")
                     painter.drawRect(self.rect)
                     self.update_image()
 
                 elif self.enable_drawing_circle:
                     radius = (self.last_point - self.first_point).manhattanLength() // 2
                     center = self.first_point + (self.last_point - self.first_point) / 2
+                    self.update_undo_stack()
+                    print(f"stack length: {len(self.pixmap_undo_stack)}")
                     painter.drawEllipse(center, radius, radius)
                     self.update_image()
 
                 elif self.enable_drawing_horizontal_line:
+                    self.update_undo_stack()
+                    print(f"stack length: {len(self.pixmap_undo_stack)}")
                     painter.drawLine(
                         self.first_point.x(),
                         self.first_point.y(),
@@ -354,6 +393,8 @@ class ImageContainer(QWidget):
                     self.update_image()
 
                 elif self.enable_drawing_vertical_line:
+                    self.update_undo_stack()
+                    print(f"stack length: {len(self.pixmap_undo_stack)}")
                     painter.drawLine(
                         self.first_point.x(),
                         self.first_point.y(),
@@ -363,6 +404,8 @@ class ImageContainer(QWidget):
                     self.update_image()
 
                 elif self.enable_drawing_line:
+                    self.update_undo_stack()
+                    print(f"stack length: {len(self.pixmap_undo_stack)}")
                     painter.drawLine(
                         self.first_point.x(),
                         self.first_point.y(),
@@ -379,6 +422,11 @@ class ImageContainer(QWidget):
             out_image.height(), out_image.width(), 3
         )
 
+    def update_undo_stack(self):
+        if len(self.pixmap_redo_stack) > 0:
+            self.pixmap_redo_stack.clear()
+        self.pixmap_undo_stack.append(self.current_pixmap.copy())
+
     def remove_background(self):
         """
         Remove background of the image. In fact this will replace the original
@@ -391,6 +439,8 @@ class ImageContainer(QWidget):
             self.image_without_background.shape[1] * 4,
             QImage.Format_RGBA8888,
         )
+        self.update_undo_stack()
+        print(f"stack length: {len(self.pixmap_undo_stack)}")
         self.current_pixmap = QPixmap(out_image)
         self.update_image()
 
@@ -405,6 +455,8 @@ class ImageContainer(QWidget):
             self.original_image.shape[1] * 3,
             QImage.Format_BGR888,
         )
+        self.update_undo_stack()
+        print(f"stack length: {len(self.pixmap_undo_stack)}")
         self.current_pixmap = QPixmap(out_image)
         self.update_image()
 
@@ -420,6 +472,8 @@ class ImageContainer(QWidget):
             self.latest_updated_image.shape[1] * 3,
             QImage.Format_BGR888,
         )
+        self.update_undo_stack()
+        print(f"stack length: {len(self.pixmap_undo_stack)}")
         self.current_pixmap = QPixmap(out_image)
         self.update_image()
 
@@ -435,6 +489,8 @@ class ImageContainer(QWidget):
             self.latest_updated_image.shape[1] * 3,
             QImage.Format_BGR888,
         )
+        self.update_undo_stack()
+        print(f"stack length: {len(self.pixmap_undo_stack)}")
         self.current_pixmap = QPixmap(out_image)
         self.update_image()
 
@@ -450,6 +506,8 @@ class ImageContainer(QWidget):
             self.latest_updated_image.shape[1] * 3,
             QImage.Format_BGR888,
         )
+        self.update_undo_stack()
+        print(f"stack length: {len(self.pixmap_undo_stack)}")
         self.current_pixmap = QPixmap(out_image)
         self.update_image()
 
@@ -465,5 +523,7 @@ class ImageContainer(QWidget):
             self.latest_updated_image.shape[1] * 3,
             QImage.Format_BGR888,
         )
+        self.update_undo_stack()
+        print(f"stack length: {len(self.pixmap_undo_stack)}")
         self.current_pixmap = QPixmap(out_image)
         self.update_image()
