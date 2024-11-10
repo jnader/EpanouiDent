@@ -21,9 +21,11 @@ class Gallery(QWidget):
     image_names: List[str]
     image_containers: List[ImagePreview]
     selected_images: List[str]
+    standalone: bool  # Used to check if widget is inside another page or not.
 
     image_selected_signal = Signal(list)
     double_click_signal = Signal(str)
+    show_collage_button_signal = Signal(bool)
 
     def __init__(self, directory: str):
         """Constructor of the class.
@@ -38,6 +40,9 @@ class Gallery(QWidget):
         self.image_containers = []
         self.selected_images = []
         self.layout = QGridLayout()
+
+        # Since it's showing a full directory
+        self.standalone = False
 
         self.directory = directory
         if not os.path.exists(self.directory):
@@ -54,7 +59,7 @@ class Gallery(QWidget):
                     print(e)
                     pass
 
-            print(f"{len(self.images)} found")
+            # print(f"{len(self.images)} found")
             self.update_gallery()
 
     def update_gallery(self):
@@ -119,7 +124,7 @@ class Gallery(QWidget):
                     print(e)
                     pass
 
-            print(f"{len(self.images)} found")
+            # print(f"{len(self.images)} found")
             self.update_gallery()
 
     def image_selected(self, selected, id):
@@ -130,6 +135,10 @@ class Gallery(QWidget):
         else:
             # Remove selected ID from list
             self.selected_images.remove(self.image_names[id])
+
+        # Show collage button in Gallery Page.
+        if not self.standalone:
+            self.show_collage_button_signal.emit(len(self.selected_images) >= 2)
 
         self.image_selected_signal.emit(self.selected_images)
 
