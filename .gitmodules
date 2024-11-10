@@ -1,3 +1,7 @@
 [submodule "external/rembg"]
 	path = external/rembg
 	url = https://github.com/danielgatis/rembg
+
+[submodule "external/airmtp"]
+	path = external/airmtp
+	url = https://github.com/jnader/airmtp

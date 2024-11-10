@@ -27,6 +27,8 @@ from ui.pages.gallery import GalleryPage
 from ui.widgets.before_after_widget import BeforeAfter
 from ui.widgets.collage import CollagePreview
 
+from backend.background_downloader import ImageDownloaderThread
+
 
 class MainPage(QMainWindow):
     """Main page of the software.
@@ -77,6 +79,10 @@ class MainPage(QMainWindow):
         main_widget.setLayout(h_layout)
         self.setCentralWidget(main_widget)
 
+        # Image Downloader Thread
+        self.downloader_thread = ImageDownloaderThread()
+        self.downloader_thread.start()
+
     def load_image(self, filename: str):
         """Loads a new tab in self.tab_widget containing the image selected.
 
@@ -111,10 +117,6 @@ class MainPage(QMainWindow):
         if len(list_of_files) > 4:
             return
 
-        # tab = BeforeAfter(
-        #     image_path_after=list_of_files[0],
-        #     image_path_before=list_of_files[1],
-        # )
         tab = CollagePreview(list_of_files)
         self.tab_widget.addTab(tab, f"Collage {self.opened_tab}")
         self.tab_widget.setCurrentIndex(self.tab_widget.count() - 1)
