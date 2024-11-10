@@ -20,12 +20,15 @@ class ImagePreview(QWidget):
     checkbox_toggled = Signal(bool, int)
     double_click_signal = Signal(int)
 
-    def __init__(self, id: int, q_image: QImage, name: str):
+    def __init__(self, id: int, q_image: QImage, name: str, image_preview_flag: bool = True):
         """Constructor of ImagePreview.
 
         Args:
             id (int): ID of the widget.
             q_image (QImage): QImage object.
+            name (str): Name of the image, usually being its absolute path.
+            image_preview_flag (bool, optional): Set some parameters for image previewing.
+                                                 Defaults to True. Otherwise, to be used with collage.
         """
         super().__init__()
         self.q_image = q_image
@@ -35,15 +38,19 @@ class ImagePreview(QWidget):
         self.old_timestamp = 0
 
         self.layout = QVBoxLayout()
-        self.checkbox = QCheckBox()
         self.image_container = QLabel()
         self.image_container.setToolTip(self.name)
         self.image_container.setAlignment(Qt.AlignCenter)
-        self.image_container.setStyleSheet("border: 1px solid gray;")
-        self.layout.setContentsMargins(20, 20, 20, 20)
-        # self.text_edit = QTextEdit("")
+        if image_preview_flag:
+            self.checkbox = QCheckBox()
+            self.image_container.setStyleSheet("border: 1px solid gray;")
+            self.layout.setContentsMargins(20, 20, 20, 20)
+            # self.text_edit = QTextEdit("")
+            self.layout.addWidget(self.checkbox)
+        else:
+            self.enterEvent = self.mouseMoveEvent
+            self.leaveEvent = self.mouseMoveEvent
 
-        self.layout.addWidget(self.checkbox)
         self.layout.addWidget(self.image_container)
         # self.layout.addWidget(self.text)
 

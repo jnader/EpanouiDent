@@ -76,6 +76,7 @@ class ImageEditMenu(QWidget):
         ] = self.draw_rectangle_signal
         self.drawing_widgets_list.append(self.draw_rectangle_button)
         self.grid_layout.addWidget(self.draw_rectangle_button, row_increment, 2)
+        row_increment += 1
 
         self.draw_horizontal_line_button = QPushButton("--")
         self.draw_horizontal_line_button.setCheckable(True)
@@ -85,7 +86,7 @@ class ImageEditMenu(QWidget):
             self.draw_horizontal_line_button
         ] = self.draw_horizontal_line_signal
         self.drawing_widgets_list.append(self.draw_horizontal_line_button)
-        self.grid_layout.addWidget(self.draw_horizontal_line_button, row_increment, 3)
+        self.grid_layout.addWidget(self.draw_horizontal_line_button, row_increment, 1)
 
         self.draw_vertical_line_button = QPushButton("|")
         self.draw_vertical_line_button.setCheckable(True)
@@ -95,7 +96,7 @@ class ImageEditMenu(QWidget):
             self.draw_vertical_line_button
         ] = self.draw_vertical_line_signal
         self.drawing_widgets_list.append(self.draw_vertical_line_button)
-        self.grid_layout.addWidget(self.draw_vertical_line_button, row_increment, 4)
+        self.grid_layout.addWidget(self.draw_vertical_line_button, row_increment, 2)
 
         self.draw_line_button = QPushButton("\\")
         self.draw_line_button.setCheckable(True)
@@ -103,7 +104,7 @@ class ImageEditMenu(QWidget):
         self.draw_line_button.clicked.connect(self.draw_line)
         self.widget_to_signal_mapping[self.draw_line_button] = self.draw_line_signal
         self.drawing_widgets_list.append(self.draw_line_button)
-        self.grid_layout.addWidget(self.draw_line_button, row_increment, 5)
+        self.grid_layout.addWidget(self.draw_line_button, row_increment, 3)
         row_increment += 1
 
         brush_icon = QLabel("Brush size")
