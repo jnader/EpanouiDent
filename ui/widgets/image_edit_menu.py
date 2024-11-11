@@ -78,7 +78,7 @@ class ImageEditMenu(QWidget):
         self.grid_layout.addWidget(self.draw_rectangle_button, row_increment, 2)
         row_increment += 1
 
-        self.draw_horizontal_line_button = QPushButton("--")
+        self.draw_horizontal_line_button = QPushButton("__")
         self.draw_horizontal_line_button.setCheckable(True)
         self.draw_horizontal_line_button.setIcon(QIcon.fromTheme(""))
         self.draw_horizontal_line_button.clicked.connect(self.draw_horizontal_line)

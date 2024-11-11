@@ -25,6 +25,7 @@ from ui.pages.gallery import GalleryPage
 from ui.widgets.collage import CollagePreview
 
 from backend.background_downloader import ImageDownloaderThread
+from backend.airmpt_log_analyzer import AirMTPLogAnalyzer
 
 
 class MainPage(QMainWindow):
@@ -39,15 +40,6 @@ class MainPage(QMainWindow):
     def __init__(self, title: str, size: QSize, base_path: str):
         """Constructor"""
         super().__init__()
-
-        # self.http_server = QHttpServer()
-        # self.http_server.route("/photo", self.receive_photo)
-        # ip_address = QHostAddress("192.168.209.143")
-        # port = 2560
-        # if self.http_server.listen(ip_address, port):
-        #     print(f"Server is running on {ip_address.toString()}:{port}")
-        # else:
-        #     print("Failed to start the server")
 
         self.opened_tab = 0
         self.base_path = base_path
@@ -79,6 +71,28 @@ class MainPage(QMainWindow):
         # Image Downloader Thread
         self.downloader_thread = ImageDownloaderThread()
         self.downloader_thread.start()
+
+        self.airmtp_log_analyzer_thread = AirMTPLogAnalyzer()
+        self.airmtp_log_analyzer_thread.camera_detected.connect(self.camera_detected)
+        self.airmtp_log_analyzer_thread.download_signal.connect(self.picture_downloaded)
+        self.airmtp_log_analyzer_thread.start()
+
+    def camera_detected(self, camera_model: str, serial_number: str):
+        """Handler of camera detection signal.
+        
+        Args:
+            camera_model (str): Model of the camera
+            serial_number (str): Serial number of detected camera
+        """
+        print(camera_model, serial_number)
+
+    def picture_downloaded(self, downloaded_picture_path: str):
+        """Handler of downloaded picture signal.
+        
+        Args:
+            downloaded_picture_path (str): Path to the downloaded picture.
+        """
+        print(downloaded_picture_path)
 
     def load_image(self, filename: str):
         """Loads a new tab in self.tab_widget containing the image selected.

@@ -1,7 +1,9 @@
-import requests
+"""
+This file contains the QThread responsible for running airmtp
+script to retrieve pictures from camera.
+"""
 import os
-import time
-from subprocess import run, PIPE
+from subprocess import run
 from PySide6.QtCore import QThread, Signal
 
 class ImageDownloaderThread(QThread):
@@ -26,7 +28,7 @@ class ImageDownloaderThread(QThread):
         command = f"python3 {dir} {self.COMMAND}"
         with open(".log_airmtp_download", "w") as f:
             print(f)
-            run(command.split(" "), stdout=f)
+            run(command.split(" "), stdout=f, stderr=f)
 
     def run(self):
         self.init_session()
