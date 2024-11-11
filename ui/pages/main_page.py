@@ -19,12 +19,9 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtHttpServer import QHttpServer
-from PySide6.QtNetwork import QHostAddress
 
 from ui.pages.image_view_and_edit import ImageViewEdit
 from ui.pages.gallery import GalleryPage
-from ui.widgets.before_after_widget import BeforeAfter
 from ui.widgets.collage import CollagePreview
 
 from backend.background_downloader import ImageDownloaderThread
