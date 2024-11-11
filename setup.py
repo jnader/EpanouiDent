@@ -1,3 +1,4 @@
+import os
 import sys
 sys.setrecursionlimit(5000)
 from cx_Freeze import setup, Executable
@@ -15,7 +16,7 @@ base = "Win32GUI" if sys.platform == "win32" else None
 setup(
     name="EpanouiDent",
     version="0.1",
-    description="Software for Dentists!",
+    description="Utility software for dentists",
     options={"build_exe": build_exe_options},
     executables=[Executable("main.py", base=base)],
 )
