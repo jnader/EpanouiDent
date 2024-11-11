@@ -1,0 +1,35 @@
+[X] FLIP
+[X] Add lines (horizontal, vertical, obliques)
+[X] Add Rectangles
+[X] Add Circles
+[X] Add brush size control slider in menu
+[X] Add TEXT
+[X] Fix UI bugs when maniuplating image
+    [X] /!\ The position is w.r.t. to self/object not image.
+[X] Add basic collage (2 and 4 images in a grid only)
+[X] Add search bar in the main window to search for (NOM PRENOM of the patient's folder)
+    [ ] Focus by default to show user he should be writing
+[X] Use airnefcmd to start connection at GUI startup in a seperate process
+[X] Add default/patients folder as environment variable
+
+[ ] CROP (??)
+[ ] Transition between all images (viewImage page maybe)
+[\] Add undo/redo
+
+[ ] Get Camera type and serial number and show them in the GUI
+[ ] What happens if camera's wifi disconnects every time? Should we poll or hold the connection back?
+
+[ ] Reduce time in load images (seperate process to remove background)
+[\] Handle basic exceptions (Folder not found, any other exception)
+    [ ] Folder shouldn't be loaded
+
+[ ] Improve text with QTextEdit
+[ ] Create packaging branch in which I created github jobs to package for windows/mac/linux
+
+
+/!\ BUGS
+[ ] remove_background uses original picture and not current_pixmap (Should be handled by seperate thread)
+
+
+
+python3 airnefcmd.py --outputdir "/home/joudy/Desktop/" --ifexists uniquename --ipaddress 192.168.1.1 --realtimedownload only --logginglevel verbose --cameratransferlist exitifnotavail
