@@ -8,6 +8,7 @@ build_exe_options = {
     "excludes": ["tkinter", "unittest", "PyQt6"],
     "zip_include_packages": ["encodings"],
     "optimize": 1,
+    "include_files": ["first_install.md"],
 }
 
 # base="Win32GUI" should be used only for Windows GUI app
