@@ -192,13 +192,6 @@ class ImageEditMenu(QWidget):
         )
         row_increment += 1
 
-        # Image rotation widget
-        label_rotate = QLabel("Rotate image")
-        self.grid_layout.addWidget(
-            label_rotate, row_increment, 1, 1, -1, alignment=Qt.AlignmentFlag.AlignTop
-        )
-        row_increment += 1
-
         self.setLayout(self.grid_layout)
 
     def create_slider_widget(
