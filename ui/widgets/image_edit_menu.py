@@ -134,25 +134,25 @@ class ImageEditMenu(QWidget):
         self.grid_layout.addWidget(self.remove_background_button, row_increment, 2)
         row_increment += 1
 
-        self.flip_horizontal_button = QPushButton("")
-        self.flip_horizontal_button.setIcon(QIcon.fromTheme("object-flip-horizontal"))
+        self.flip_horizontal_button = QPushButton("Horizontal Flip")
+        # self.flip_horizontal_button.setIcon(QIcon.fromTheme("object-flip-horizontal"))
         self.flip_horizontal_button.clicked.connect(self.flip_horizontal)
         self.grid_layout.addWidget(self.flip_horizontal_button, row_increment, 1)
 
-        self.flip_vertical_button = QPushButton("")
-        self.flip_vertical_button.setIcon(QIcon.fromTheme("object-flip-vertical"))
+        self.flip_vertical_button = QPushButton("Vertical Flip")
+        # self.flip_vertical_button.setIcon(QIcon.fromTheme("object-flip-vertical"))
         self.flip_vertical_button.clicked.connect(self.flip_vertical)
         self.grid_layout.addWidget(self.flip_vertical_button, row_increment, 2)
 
-        self.rotate_clockwise_button = QPushButton("")
-        self.rotate_clockwise_button.setIcon(QIcon.fromTheme("object-rotate-left"))
+        self.rotate_clockwise_button = QPushButton("Rotate CW")
+        # self.rotate_clockwise_button.setIcon(QIcon.fromTheme("object-rotate-left"))
         self.rotate_clockwise_button.clicked.connect(self.rotate_clockwise)
         self.grid_layout.addWidget(self.rotate_clockwise_button, row_increment, 3)
 
-        self.rotate_counter_clockwise_button = QPushButton("")
-        self.rotate_counter_clockwise_button.setIcon(
-            QIcon.fromTheme("object-rotate-right")
-        )
+        self.rotate_counter_clockwise_button = QPushButton("Rotate CCW")
+        # self.rotate_counter_clockwise_button.setIcon(
+            # QIcon.fromTheme("object-rotate-right")
+        # )
         self.rotate_counter_clockwise_button.clicked.connect(
             self.rotate_counter_clockwise
         )
