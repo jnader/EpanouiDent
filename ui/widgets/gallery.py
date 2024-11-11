@@ -51,10 +51,10 @@ class Gallery(QWidget):
         if os.path.exists(self.directory):
             for file in os.listdir(self.directory):
                 try:
-                    self.images.append(
-                        cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
-                    )
-                    self.image_names.append(os.path.join(self.directory, file))
+                    img = cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
+                    if img is not None:
+                        self.images.append(img)
+                        self.image_names.append(os.path.join(self.directory, file))
                 except Exception as e:
                     print(e)
                     pass
@@ -66,7 +66,6 @@ class Gallery(QWidget):
         """Updatess image gallery preview."""
         rows = len(self.images) // 4
         cols = 4
-        print(f"Grid: {rows} x {cols}")
 
         for id, img in enumerate(self.images):
             i = id // cols
@@ -116,10 +115,10 @@ class Gallery(QWidget):
         if os.path.exists(self.directory):
             for file in os.listdir(self.directory):
                 try:
-                    self.images.append(
-                        cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
-                    )
-                    self.image_names.append(os.path.join(self.directory, file))
+                    img = cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
+                    if img is not None:
+                        self.images.append(img)
+                        self.image_names.append(os.path.join(self.directory, file))
                 except Exception as e:
                     print(e)
                     pass
@@ -151,10 +150,10 @@ class Gallery(QWidget):
         for file in os.listdir(self.directory):
             if os.path.join(self.directory, file) not in self.image_names:
                 try:
-                    self.images.append(
-                        cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
-                    )
-                    self.image_names.append(os.path.join(self.directory, file))
+                    img = cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
+                    if img is not None:
+                        self.images.append(img)
+                        self.image_names.append(os.path.join(self.directory, file))
                 except Exception as e:
                     print(e)
                     pass
