@@ -37,5 +37,8 @@ jobs:
       if: success()
       uses: actions/upload-artifact@v4
       with:
-        name: myapp-${{ matrix.os }}
-        path: build/exe.${{ matrix.os }}-*/
+        name: epanouident-${{ matrix.os }}
+        path: |
+          ${{ matrix.os == 'ubuntu-latest' && 'build/exe.linux-x86_64-3.11/*' || '' }}
+          ${{ matrix.os == 'macos-latest' && 'build/exe..macosx-10.9-universal2-3.11/*' || '' }}
+          ${{ matrix.os == 'windows-latest' && 'build/exe.win-amd64-3.11/*' || '' }}
