@@ -24,7 +24,7 @@ class AirMTPLogAnalyzer(QThread):
             with open(self.LOG_FILE, "r") as f:
                 data = f.readlines()
             if data:
-                self.latest_logs = "".join(data[self.logs_line_count:]).lower()
+                self.latest_logs = "".join(data[self.logs_line_count:])
                 self.logs_line_count += len(data)
 
                 self.analyze_logs()
@@ -33,14 +33,14 @@ class AirMTPLogAnalyzer(QThread):
         """
         Analyze latest logs
         """
-        print(self.latest_logs)
-        if "camera model" in self.latest_logs:
-            data = self.latest_logs.replace("\n", "")
-            camera_model = data.split("camera model")[1].split("\"")[1]
-            serial_number = data.split("s/n")[-1]
+        if "Camera Model" in self.latest_logs:
+            # TODO: Replace with regexp
+            camera_model = self.latest_logs.split("Camera Model")[1].split("\"")[1]
+            serial_number = self.latest_logs.split("S/N")[-1].split("\"")[1]
             self.camera_detected.emit(camera_model, serial_number)
-        elif "dsc" in self.latest_logs and "100%" in self.latest_logs:
-            print("New image received")
+        elif "DSC" in self.latest_logs and "100%" in self.latest_logs:
+            downloaded_file_path = data.split("Downloading")[-1].split("\"")[1]
+            self.download_signal.emit(downloaded_file_path)
         else:
             return
 
