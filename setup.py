@@ -5,7 +5,7 @@ from cx_Freeze import setup, Executable
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
-    "excludes": ["tkinter", "unittest", "PyQt6"],
+    "excludes": ["tkinter", "PyQt6"],
     "zip_include_packages": ["encodings"],
     "optimize": 1,
     "include_files": ["first_install.md"],
