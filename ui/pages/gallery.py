@@ -81,7 +81,10 @@ class GalleryPage(QWidget):
         )
 
         if not "EPANOUIDENT_DEFAULT_PATH" in os.environ:
-            self.default_path = "Pictures" # should be in an environment variable?
+            self.default_path = input("Please select the default path: ")
+            os.environ["EPANOUIDENT_DEFAULT_PATH"] = self.default_path
+            print("Run the following command in cmd.exe:")
+            print(f"\tsetx EPANOUIDENT_DEFAULT_PATH {self.default_path}")
         else:
             print("Using path from environment variable)")
             self.default_path = os.environ["EPANOUIDENT_DEFAULT_PATH"]
