@@ -6,3 +6,4 @@ onnxruntime
 pooch
 PySide6
 pymatting
+regex
