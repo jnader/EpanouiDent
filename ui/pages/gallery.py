@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QPushButton,
     QSizePolicy,
+    QLabel,
 )
 from PySide6.QtGui import QIcon
 from typing import List
@@ -52,15 +53,20 @@ class GalleryPage(QWidget):
         self.gallery_preview = Gallery("")
         self.scroll_area.setWidget(self.gallery_preview)
 
-        self.button_explore = QPushButton("Open Folder")
-        self.button_explore.setIcon(QIcon.fromTheme("folder"))
-        self.button_explore.pressed.connect(self.button_pressed)
+        label = QLabel("Folder: ")
 
         self.path_search = QTextEdit("")
         font_size = self.path_search.fontInfo().pixelSize()
         self.path_search.setFixedHeight(2.5 * font_size)
         self.path_search.textChanged.connect(self.path_search_text_change)
         self.path_cleared = False
+
+        self.button_explore = QPushButton("Open Folder")
+        self.button_explore.setFixedHeight(self.path_search.height() - 10)
+        # self.button_explore.setIcon(QIcon.fromTheme("folder"))
+        self.button_explore.pressed.connect(self.button_pressed)
+
+        h_layout.addWidget(label)
         h_layout.addWidget(self.path_search)
         h_layout.addWidget(self.button_explore)
         widget = QWidget()
