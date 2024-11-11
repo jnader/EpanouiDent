@@ -8,3 +8,4 @@ PySide6
 pymatting
 regex
 cx_Freeze
+unittest
