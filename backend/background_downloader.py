@@ -24,7 +24,7 @@ class ImageDownloaderThread(QThread):
         dir = os.path.join(current_file_dir, "external", "airmtp", "airnefcmd.py")
 
         command = f"python3 {dir} {self.COMMAND}"
-        with open(".log_airmtp_download", "a") as f:
+        with open(".log_airmtp_download", "w") as f:
             print(f)
             run(command.split(" "), stdout=f)
 
