@@ -80,7 +80,12 @@ class GalleryPage(QWidget):
             self.show_collage_button
         )
 
-        self.default_path = "/home/joudy/Pictures/" # should be in an environment variable?
+        if not "EPANOUIDENT_DEFAULT_PATH" in os.environ:
+            self.default_path = "Pictures" # should be in an environment variable?
+        else:
+            print("Using path from environment variable)")
+            self.default_path = os.environ["EPANOUIDENT_DEFAULT_PATH"]
+
         self.folders_list = os.listdir(self.default_path)
 
     def button_pressed(self):
