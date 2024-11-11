@@ -123,7 +123,6 @@ class Gallery(QWidget):
                     print(e)
                     pass
 
-            # print(f"{len(self.images)} found")
             self.update_gallery()
 
     def image_selected(self, selected, id):

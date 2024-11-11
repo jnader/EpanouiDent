@@ -18,6 +18,7 @@ from PySide6.QtGui import (
     QPainter,
     QColor,
     QIcon,
+    QFont,
     QPen,
 )
 from typing import List
@@ -206,7 +207,6 @@ class ImageContainer(QWidget):
             QImage.Format_BGR888,
         )
         self.update_undo_stack()
-        print(f"stack length: {len(self.pixmap_undo_stack)}")
         self.current_pixmap = QPixmap(self.out_image)
         self.update_image()
 
@@ -236,6 +236,8 @@ class ImageContainer(QWidget):
                     elif event.text():
                         self.current_text += chr(event.key())
 
+                    serifFont = QFont("Times", self.brush_size * 10, QFont.Bold)
+                    painter.setFont(serifFont)
                     painter.drawText(self.rect, self.current_text)
                     painter.drawRect(self.rect)
                     self.update_image(tmp_pixmap)
@@ -244,9 +246,6 @@ class ImageContainer(QWidget):
         """Undo latest modification."""
         if len(self.pixmap_undo_stack) > 0:
             self.current_pixmap = self.pixmap_undo_stack.pop()
-            print(
-                f"Undo: {len(self.pixmap_undo_stack)}, Redo: {len(self.pixmap_redo_stack)}"
-            )
             self.pixmap_redo_stack.append(self.current_pixmap.copy())
             self.update_image()
 
@@ -379,13 +378,14 @@ class ImageContainer(QWidget):
         # If text edit enabled, write the final version of the text.
         if self.enable_text:
             with QPainter(self.current_pixmap) as painter:
+                serifFont = QFont("Times", self.brush_size * 10, QFont.Bold)
+                painter.setFont(serifFont)
                 painter.setPen(QPen(self.pen_color, self.brush_size))
                 if (
                     self.first_point
                     and self.current_text is not None
                     and len(self.current_text) > 0
                 ):
-                    print(f"text: {self.current_text}")
                     painter.drawText(self.rect, self.current_text)
                     painter.drawRect(self.rect)
                     self.update_image()
