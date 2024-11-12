@@ -24,5 +24,5 @@ setup(
     author_email="joudynader13@gmail.com",
     description="Utility software for dentists",
     options={"build_exe": build_exe_options},
-    executables=[Executable("main.py", base=base)],
+    executables=[Executable("main.py", base=base, target_name="Epanouident")],
 )
