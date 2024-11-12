@@ -16,3 +16,5 @@ if __name__ == "__main__":
     window = MainPage(title="EpanouiDent", size=QSize(1280, 800), base_path=base_path)
     window.show()
     app.exec()
+
+    window.downloader_thread.process.kill()

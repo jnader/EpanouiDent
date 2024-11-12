@@ -148,8 +148,8 @@ class ImageContainer(QWidget):
         """Mouse wheel event"""
         self.image_container.setPixmap(
             self.current_pixmap.scaled(
-                self.width() + event.pixelDelta().y(),
-                self.height() + event.pixelDelta().y(),
+                self.width() + event.angleDelta().y(),
+                self.height() + event.angleDelta().y(),
                 Qt.KeepAspectRatio,
                 Qt.SmoothTransformation,
             )
