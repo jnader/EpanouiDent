@@ -16,8 +16,7 @@ from PySide6.QtWidgets import (
     QStackedLayout,
     QMessageBox,
 )
-from PySide6.QtGui import QAction, QIcon
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout
 from PySide6.QtCore import QSize, Qt
 
 from ui.pages.image_view_and_edit import ImageViewEdit

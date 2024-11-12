@@ -39,7 +39,7 @@ class AirMTPLogAnalyzer(QThread):
             serial_number = self.latest_logs.split("S/N")[-1].split("\"")[1]
             self.camera_detected.emit(camera_model, serial_number)
         elif "DSC" in self.latest_logs and "100%" in self.latest_logs:
-            downloaded_file_path = data.split("Downloading")[-1].split("\"")[1]
+            downloaded_file_path = self.latest_logs.split("Downloading")[-1].split("\"")[1]
             self.download_signal.emit(downloaded_file_path)
         else:
             return

@@ -3,8 +3,10 @@ This file contains the QThread responsible for running airmtp
 script to retrieve pictures from camera.
 """
 import os
-from subprocess import run
+from subprocess import Popen
 from PySide6.QtCore import QThread, Signal
+import time
+from external.airmtp import *
 
 class ImageDownloaderThread(QThread):
     download_signal = Signal(str)
@@ -27,7 +29,12 @@ class ImageDownloaderThread(QThread):
 
         command = f"python3 {dir} {self.COMMAND}"
         with open(".log_airmtp_download", "w") as f:
-            run(command.split(" "), stdout=f, stderr=f)
+            self.process = Popen(command.split(" "), stdout=f, stderr=f)
+        
+        while self.running:
+            time.sleep(5)
+
+        self.process.kill()
 
     def run(self):
         self.init_session()
