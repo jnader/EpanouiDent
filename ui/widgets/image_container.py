@@ -73,7 +73,7 @@ class ImageContainer(QWidget):
         self.enable_drawing_circle = False
         self.enable_drawing_rectangle = False
         self.pen_color = QColor("black")
-        self.brush_size = 1
+        self.brush_size = 6
         self.first_point = None
         self.last_point = None
         self.rect = None
@@ -220,8 +220,8 @@ class ImageContainer(QWidget):
         if data.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
             if data.key() == Qt.Key.Key_Z:
                 self.undo_image_manipulation()
-            elif data.key() == Qt.Key.Key_Y:
-                self.redo_image_manipulation()
+            # elif data.key() == Qt.Key.Key_Y:
+                # self.redo_image_manipulation()
             return
 
         tmp_pixmap = self.current_pixmap.copy()
@@ -236,7 +236,7 @@ class ImageContainer(QWidget):
                     elif event.text():
                         self.current_text += chr(event.key())
 
-                    serifFont = QFont("Times", self.brush_size * 10, QFont.Bold)
+                    serifFont = QFont("Times", self.brush_size * 3, QFont.Bold)
                     painter.setFont(serifFont)
                     painter.drawText(self.rect, self.current_text)
                     painter.drawRect(self.rect)
@@ -378,7 +378,7 @@ class ImageContainer(QWidget):
         # If text edit enabled, write the final version of the text.
         if self.enable_text:
             with QPainter(self.current_pixmap) as painter:
-                serifFont = QFont("Times", self.brush_size * 10, QFont.Bold)
+                serifFont = QFont("Times", self.brush_size * 3, QFont.Bold)
                 painter.setFont(serifFont)
                 painter.setPen(QPen(self.pen_color, self.brush_size))
                 if (

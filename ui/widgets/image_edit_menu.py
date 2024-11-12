@@ -115,7 +115,7 @@ class ImageEditMenu(QWidget):
         row_increment += 1
 
         self.brush_size = QSlider(orientation=Qt.Orientation.Horizontal)
-        self.brush_size.setMinimum(1)
+        self.brush_size.setMinimum(6)
         self.brush_size.setMaximum(100)
         self.brush_size.setValue(1)
         self.brush_size.setStatusTip("Brush size")
@@ -130,6 +130,7 @@ class ImageEditMenu(QWidget):
         self.drawing_widgets_list.append(self.text_edit_button)
         self.widget_to_signal_mapping[self.text_edit_button] = self.enable_text_edit_signal
         self.grid_layout.addWidget(self.text_edit_button, row_increment, 1)
+        row_increment += 1
 
         self.remove_background_button = QPushButton("Remove background")
         self.remove_background_button.setCheckable(True)
