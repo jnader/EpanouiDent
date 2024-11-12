@@ -20,7 +20,6 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QSizePolicy,
     QColorDialog,
-    QGroupBox,
     QLabel,
 )
 from PySide6.QtGui import QIcon, QColor

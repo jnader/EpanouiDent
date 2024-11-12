@@ -24,7 +24,7 @@ from ui.pages.gallery import GalleryPage
 from ui.widgets.collage import CollagePreview
 
 from backend.background_downloader import ImageDownloaderThread
-from backend.airmpt_log_analyzer import AirMTPLogAnalyzer
+from backend.airmtp_log_analyzer import AirMTPLogAnalyzer
 
 
 class MainPage(QMainWindow):
