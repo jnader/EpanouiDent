@@ -89,10 +89,7 @@ class GalleryPage(QWidget):
         if not "EPANOUIDENT_DEFAULT_PATH" in os.environ:
             self.default_path = input("Please select the default path: ")
             os.environ["EPANOUIDENT_DEFAULT_PATH"] = self.default_path
-            print("Run the following command in cmd.exe:")
-            print(f"\tsetx EPANOUIDENT_DEFAULT_PATH {self.default_path}")
         else:
-            print("Using path from environment variable)")
             self.default_path = os.environ["EPANOUIDENT_DEFAULT_PATH"]
 
         self.folders_list = os.listdir(self.default_path)
@@ -108,7 +105,6 @@ class GalleryPage(QWidget):
 
         dialog.hide()
 
-        print(self.directory_name)
         self.directory_watcher = QFileSystemWatcher(self.directory_name)
         self.directory_watcher.directoryChanged.connect(self.directory_changed_event)
         self.gallery_preview.update_directory(self.directory_name)
@@ -127,7 +123,6 @@ class GalleryPage(QWidget):
 
     def directory_changed_event(self, files):
         """Directory changed event"""
-        print(f"Directory changed {files}")
         self.gallery_preview.update_directory(self.directory_name)
 
     def show_collage_button(self, state: bool):

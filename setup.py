@@ -7,7 +7,7 @@ external_airmtp = os.path.join(os.getcwd(), "external", "airmtp")
 install_bat = os.path.join(os.getcwd(), "install_scripts", "install.bat")
 
 build_exe_options = {
-    "excludes":["PyQt6"],  # Exclude unnecessary modules
+    "excludes":["tkinter", "PyQt6"],  # Exclude unnecessary modules
     "include_files": [
         install_bat,  # include the install.bat file
         (external_airmtp, "lib/external/airmtp"),  # include the whole external/airmtp directory
