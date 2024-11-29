@@ -1,3 +1,4 @@
+# Image handling
 [X] FLIP
 [X] Add lines (horizontal, vertical, obliques)
 [X] Add Rectangles
@@ -11,25 +12,29 @@
     [ ] Focus by default to show user he should be writing
 [X] Use airnefcmd to start connection at GUI startup in a seperate process
 [X] Add default/patients folder as environment variable
-
+[\] Reduce time in load images (seperate process to remove background)
+    [\] Reduce background removal process wait by running it in the background.
+        [ ] Run it asynchronously
+    [ ] Reduce gallery loading time (Show loading screen or update incrementaly?)
+[\] Add undo/redo
 [ ] CROP (??)
 [ ] Transition between all images (viewImage page maybe)
-[\] Add undo/redo
+[ ] Improve text with QTextEdit
 
+# Camera
 [ ] Get Camera type and serial number and show them in the GUI
 [ ] What happens if camera's wifi disconnects every time? Should we poll or hold the connection back?
 
-[ ] Reduce time in load images (seperate process to remove background)
+# Application
 [\] Handle basic exceptions (Folder not found, any other exception)
     [ ] Folder shouldn't be loaded
-
-[ ] Improve text with QTextEdit
 [ ] Create packaging branch in which I created github jobs to package for windows/mac/linux
-
-
 /!\ BUGS
 [ ] remove_background uses original picture and not current_pixmap (Should be handled by seperate thread)
 
+# DNN
+[ ] Cephalometric data check
+[ ] Train U-Net for detecting cephalometric landmarks
 
 
 python3 airnefcmd.py --outputdir "/home/joudy/Desktop/" --ifexists uniquename --ipaddress 192.168.1.1 --realtimedownload only --logginglevel verbose --cameratransferlist exitifnotavail
