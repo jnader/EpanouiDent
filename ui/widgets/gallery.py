@@ -3,6 +3,7 @@ The idea is to be used on a directory of images.
 """
 
 import cv2
+from multiprocessing.pool import ThreadPool
 import numpy as np
 import os
 from PySide6.QtCore import Signal
@@ -49,22 +50,30 @@ class Gallery(QWidget):
             print("Directory does not exist.")
 
         if os.path.exists(self.directory):
-            for file in os.listdir(self.directory):
-                try:
-                    img = cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
-                    if img is not None:
-                        self.images.append(img)
-                        self.image_names.append(os.path.join(self.directory, file))
-                except Exception as e:
-                    print(e)
-                    pass
+            self.potential_entries = os.listdir(self.directory)
+            with ThreadPool(len(self.potential_entries)) as p:
+                results = p.map(func=self.load_files, iterable=self.potential_entries)
 
-            # print(f"{len(self.images)} found")
             self.update_gallery()
+
+    def load_files(self, entry_name: str):
+        """Function to read entry (could be image or not) and update
+        objects internal variables.
+
+        Args:
+            entry_id (str): String containing the path of the potential entry
+        """
+        try:
+            img = cv2.imread(os.path.join(self.directory, entry_name), cv2.IMREAD_COLOR)
+            if img is not None:
+                self.images.append(img)
+                self.image_names.append(os.path.join(self.directory, entry_name))
+        except Exception as e:
+            print(e)
+            pass
 
     def update_gallery(self):
         """Updatess image gallery preview."""
-        rows = len(self.images) // 4
         cols = 4
 
         for id, img in enumerate(self.images):
@@ -80,8 +89,11 @@ class Gallery(QWidget):
             )
 
             image_container = ImagePreview(
-                id=id, q_image=q_image, name=self.image_names[id]
+                id=id,
+                q_image=q_image,
+                name=self.image_names[id],
             )
+            print("In gallery: ", self.size(), image_container.size())
             image_container.checkbox_toggled.connect(self.image_selected)
             image_container.double_click_signal.connect(self.image_double_clicked)
             self.image_containers.append(image_container)
@@ -113,15 +125,12 @@ class Gallery(QWidget):
             print("Directory does not exist.")
 
         if os.path.exists(self.directory):
-            for file in os.listdir(self.directory):
-                try:
-                    img = cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
-                    if img is not None:
-                        self.images.append(img)
-                        self.image_names.append(os.path.join(self.directory, file))
-                except Exception as e:
-                    print(e)
-                    pass
+            self.potential_entries = os.listdir(self.directory)
+            with ThreadPool(len(self.potential_entries)) as p:
+                results = p.map(
+                    func=self.load_files,
+                    iterable=self.potential_entries,
+                )
 
             self.update_gallery()
 
@@ -149,7 +158,9 @@ class Gallery(QWidget):
         for file in os.listdir(self.directory):
             if os.path.join(self.directory, file) not in self.image_names:
                 try:
-                    img = cv2.imread(os.path.join(self.directory, file), cv2.IMREAD_COLOR)
+                    img = cv2.imread(
+                        os.path.join(self.directory, file), cv2.IMREAD_COLOR
+                    )
                     if img is not None:
                         self.images.append(img)
                         self.image_names.append(os.path.join(self.directory, file))

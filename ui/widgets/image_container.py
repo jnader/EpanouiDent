@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout
 import cv2
 import numpy as np
 import os
+from threading import Thread
 from PySide6.QtGui import (
     QMouseEvent,
     QPixmap,
@@ -81,9 +82,10 @@ class ImageContainer(QWidget):
         self.enable_text = False
 
         if os.path.exists(image_path):
-            self.image_without_background, self.original_image = remove_background(
-                image_path=image_path
-            )
+            t = Thread(target=self.remove_background_target, args=[image_path])
+            t.start()
+
+            self.original_image = cv2.imread(image_path, cv2.IMREAD_COLOR)
             self.latest_updated_image = self.original_image
             self.out_image = QImage(
                 self.latest_updated_image,
@@ -100,6 +102,16 @@ class ImageContainer(QWidget):
         self.update_image()
         self.setAcceptDrops(True)
         self.setLayout(layout)
+
+    def remove_background_target(self, img_path: str):
+        """Function to be called in a background thread.
+
+        Args:
+            img_path (str): Image file name
+        """
+        self.image_without_background, self.original_image = remove_background(
+            image_path=img_path
+        )
 
     def update_image(self, pixmap: QPixmap = None):
         """Update the image display based on the widget's size.
@@ -221,7 +233,7 @@ class ImageContainer(QWidget):
             if data.key() == Qt.Key.Key_Z:
                 self.undo_image_manipulation()
             # elif data.key() == Qt.Key.Key_Y:
-                # self.redo_image_manipulation()
+            # self.redo_image_manipulation()
             return
 
         tmp_pixmap = self.current_pixmap.copy()
@@ -471,7 +483,16 @@ class ImageContainer(QWidget):
         """
         Remove background of the image. In fact this will replace the original
         image with the one without background.
+        TODO:
+        - Handle it more intelligently, by taking the current pixmap and
+        removing the background.
+            - This can be done by creating another function remove_background_pixmap()
+            that will take as input `current_pixmap`.
         """
+        if self.image_without_background is None:
+            # TODO: Handle asynchronously
+            print("Not yet generated")
+            return
         out_image = QImage(
             self.image_without_background,
             self.image_without_background.shape[1],

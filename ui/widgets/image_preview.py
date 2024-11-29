@@ -56,14 +56,16 @@ class ImagePreview(QWidget):
 
         self.setLayout(self.layout)
 
+        print("ImagePreview: before: ", self.size())
         # Display the image initially
         self.update_image()
+        print("ImagePreview: after: ", self.size())
 
     def resizeEvent(self, event):
         """Resize event.
         Update the image to fit the new size of the widget.
         """
-        self.update_image()
+        # self.update_image()
         super().resizeEvent(event)
 
     def update_image(self):
@@ -71,8 +73,8 @@ class ImagePreview(QWidget):
         pixmap = QPixmap(self.q_image)
         self.image_container.setPixmap(
             pixmap.scaled(
-                self.width() - 50,
-                self.height() - 50,
+                self.width(),# - 50,
+                self.height(),# - 50,
                 Qt.KeepAspectRatio,
                 Qt.SmoothTransformation,
             )
