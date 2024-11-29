@@ -12,14 +12,18 @@
     [ ] Focus by default to show user he should be writing
 [X] Use airnefcmd to start connection at GUI startup in a seperate process
 [X] Add default/patients folder as environment variable
+[X] Disable Remove Background as long as the picture without bg is not generated
 [\] Reduce time in load images (seperate process to remove background)
     [\] Reduce background removal process wait by running it in the background.
         [ ] Run it asynchronously
     [ ] Reduce gallery loading time (Show loading screen or update incrementaly?)
 [\] Add undo/redo
+    [X] Undo
+    [ ] Redo
+[ ] Improve drawing frequency (since there's a small lag on images)
+[ ] Improve text with QTextEdit
 [ ] CROP (??)
 [ ] Transition between all images (viewImage page maybe)
-[ ] Improve text with QTextEdit
 
 # Camera
 [ ] Get Camera type and serial number and show them in the GUI
@@ -33,6 +37,7 @@
 /!\ BUGS
 [X] Scroll to zoom is not working correctly now
 [X] Text brush size
+[ ] Start-up/close too slow
 [ ] remove_background uses original picture and not current_pixmap (Should be handled by seperate thread)
 [ ] Weird image handling issues sometimes (bmp and png file formats)
 

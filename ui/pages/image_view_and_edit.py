@@ -51,6 +51,7 @@ class ImageViewEdit(QWidget):
         self.scroll_area.setWidgetResizable(True)
 
         self.image_container = ImageContainer(base_path)
+        self.image_container.background_image_generated.connect(self.enable_background_removal_button)
         self.scroll_area.setWidget(self.image_container)
 
         self.image_edit_menu = ImageEditMenu()
@@ -91,6 +92,10 @@ class ImageViewEdit(QWidget):
 
         self.setLayout(layout)
         self.setFocusPolicy(Qt.StrongFocus)
+
+    def enable_background_removal_button(self, flag: bool):
+        """Enable removing background button"""
+        self.image_edit_menu.remove_background_button.setEnabled(flag)
 
     def paint_brush_size_changed(self, new_brush_size: int):
         """Change paint brush size.

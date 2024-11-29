@@ -133,6 +133,7 @@ class ImageEditMenu(QWidget):
         row_increment += 1
 
         self.remove_background_button = QPushButton("Remove background")
+        self.remove_background_button.setEnabled(False)
         self.remove_background_button.setCheckable(True)
         self.remove_background_button.setIcon(QIcon.fromTheme("background"))
         self.remove_background_button.clicked.connect(self.remove_background)

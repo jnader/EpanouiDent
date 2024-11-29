@@ -2,7 +2,7 @@
 Custom image container widget
 """
 
-from PySide6.QtCore import Qt, QPoint, QPointF, QRect, QKeyCombination
+from PySide6.QtCore import Qt, QPoint, QPointF, QRect, QKeyCombination, Signal
 from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout
 import cv2
 import numpy as np
@@ -35,8 +35,9 @@ class ImageContainer(QWidget):
     - Channel gain manipulation
     - Drawing and Text edit
     - Background removal
-
     """
+
+    background_image_generated = Signal(bool)
 
     def __init__(self, image_path: str = None):
         """Constructor
@@ -112,6 +113,8 @@ class ImageContainer(QWidget):
         self.image_without_background, self.original_image = remove_background(
             image_path=img_path
         )
+
+        self.background_image_generated.emit(True)
 
     def update_image(self, pixmap: QPixmap = None):
         """Update the image display based on the widget's size.
