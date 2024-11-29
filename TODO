@@ -24,13 +24,17 @@
 # Camera
 [ ] Get Camera type and serial number and show them in the GUI
 [ ] What happens if camera's wifi disconnects every time? Should we poll or hold the connection back?
+[ ] Do we need to support camera API instead of thread?
 
 # Application
 [\] Handle basic exceptions (Folder not found, any other exception)
     [ ] Folder shouldn't be loaded
 [ ] Create packaging branch in which I created github jobs to package for windows/mac/linux
 /!\ BUGS
+[X] Scroll to zoom is not working correctly now
+[X] Text brush size
 [ ] remove_background uses original picture and not current_pixmap (Should be handled by seperate thread)
+[ ] Weird image handling issues sometimes (bmp and png file formats)
 
 # DNN
 [ ] Cephalometric data check
