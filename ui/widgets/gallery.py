@@ -93,7 +93,7 @@ class Gallery(QWidget):
                 q_image=q_image,
                 name=self.image_names[id],
             )
-            print("In gallery: ", self.size(), image_container.size())
+
             image_container.checkbox_toggled.connect(self.image_selected)
             image_container.double_click_signal.connect(self.image_double_clicked)
             self.image_containers.append(image_container)
