@@ -3,6 +3,8 @@ Main page of EpanouiDent.
 """
 
 from typing import List
+import os
+import shutil
 
 from PySide6.QtWidgets import (
     QMainWindow,
@@ -78,20 +80,24 @@ class MainPage(QMainWindow):
 
     def camera_detected(self, camera_model: str, serial_number: str):
         """Handler of camera detection signal.
-        
+
         Args:
             camera_model (str): Model of the camera
             serial_number (str): Serial number of detected camera
         """
-        print(camera_model, serial_number)
+        print("Received camera model: ", camera_model, serial_number)
 
     def picture_downloaded(self, downloaded_picture_path: str):
         """Handler of downloaded picture signal.
-        
+
         Args:
             downloaded_picture_path (str): Path to the downloaded picture.
         """
-        print(downloaded_picture_path)
+        print(downloaded_picture_path, os.path.basename(downloaded_picture_path))
+        if self.gallery_page.directory_name:
+            # Copy file to current directory
+            shutil.move(downloaded_picture_path, os.path.join(self.gallery_page.directory_name, os.path.basename(downloaded_picture_path)))
+            self.gallery_page.sync_diff()
 
     def load_image(self, filename: str):
         """Loads a new tab in self.tab_widget containing the image selected.

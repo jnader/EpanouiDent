@@ -30,7 +30,7 @@ class ImageDownloaderThread(QThread):
         command = f"python3 {dir} {self.COMMAND}"
         with open(".log_airmtp_download", "w") as f:
             self.process = Popen(command.split(" "), stdout=f, stderr=f)
-        
+
         while self.running:
             time.sleep(5)
 
