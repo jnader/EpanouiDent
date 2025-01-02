@@ -126,11 +126,12 @@ class Gallery(QWidget):
 
         if os.path.exists(self.directory):
             self.potential_entries = os.listdir(self.directory)
-            with ThreadPool(len(self.potential_entries)) as p:
-                results = p.map(
-                    func=self.load_files,
-                    iterable=self.potential_entries,
-                )
+            if len(self.potential_entries) > 0:
+                with ThreadPool(len(self.potential_entries)) as p:
+                    results = p.map(
+                        func=self.load_files,
+                        iterable=self.potential_entries,
+                    )
 
             self.update_gallery()
 

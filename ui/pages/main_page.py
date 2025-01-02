@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QToolBar,
     QMenuBar,
+    QRadioButton,
     QTabWidget,
     QStackedLayout,
     QMessageBox,
@@ -37,6 +38,8 @@ class MainPage(QMainWindow):
 
     gallery_page: GalleryPage
     opened_tab: int
+    camera_model: str
+    camera_serial: str
 
     def __init__(self, title: str, size: QSize, base_path: str):
         """Constructor"""
@@ -64,6 +67,24 @@ class MainPage(QMainWindow):
         )
         h_layout.addWidget(self.tab_widget)
 
+        self.camera_detected_indicator = QRadioButton()
+        self.camera_detected_indicator.setStyleSheet(
+            "QRadioButton::indicator:checked{"
+            "width:12px;height:12px;"
+            "border-radius:7px;"
+            "background-color:green;"
+            "border:2px solid yellow;"
+            "}"
+            "QRadioButton::indicator:unchecked{"
+            "width:8px;height:8px;"
+            "border-radius:5px;"
+            "background-color: transparent;"
+            "border:2px solid gray;"
+            "}"
+        )
+        self.camera_detected_indicator.setChecked(False)
+        h_layout.addWidget(self.camera_detected_indicator)
+
         h_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_widget = QWidget()
         main_widget.setLayout(h_layout)
@@ -75,6 +96,9 @@ class MainPage(QMainWindow):
 
         self.airmtp_log_analyzer_thread = AirMTPLogAnalyzer()
         self.airmtp_log_analyzer_thread.camera_detected.connect(self.camera_detected)
+        self.airmtp_log_analyzer_thread.camera_disconnected.connect(
+            self.camera_disconnected
+        )
         self.airmtp_log_analyzer_thread.download_signal.connect(self.picture_downloaded)
         self.airmtp_log_analyzer_thread.start()
 
@@ -85,7 +109,20 @@ class MainPage(QMainWindow):
             camera_model (str): Model of the camera
             serial_number (str): Serial number of detected camera
         """
-        print("Received camera model: ", camera_model, serial_number)
+        self.camera_model = camera_model
+        self.camera_serial = serial_number
+        self.camera_detected_indicator.setChecked(True)
+        print(self.camera_model, self.camera_serial)
+
+    def camera_disconnected(self, flag: bool):
+        """Handler for camera disconnection
+
+        Args:
+            flag (bool): True when camera is disconnected
+        """
+        self.camera_model = ""
+        self.camera_serial = ""
+        self.camera_detected_indicator.setChecked(False)
 
     def picture_downloaded(self, downloaded_picture_path: str):
         """Handler of downloaded picture signal.
@@ -93,11 +130,17 @@ class MainPage(QMainWindow):
         Args:
             downloaded_picture_path (str): Path to the downloaded picture.
         """
-        print(downloaded_picture_path, os.path.basename(downloaded_picture_path))
         if self.gallery_page.directory_name:
             # Copy file to current directory
-            shutil.move(downloaded_picture_path, os.path.join(self.gallery_page.directory_name, os.path.basename(downloaded_picture_path)))
-            self.gallery_page.sync_diff()
+            if os.path.exists(downloaded_picture_path):
+                shutil.move(
+                    downloaded_picture_path,
+                    os.path.join(
+                        self.gallery_page.directory_name,
+                        os.path.basename(downloaded_picture_path),
+                    ),
+                )
+                self.gallery_page.sync_diff()
 
     def load_image(self, filename: str):
         """Loads a new tab in self.tab_widget containing the image selected.
