@@ -188,7 +188,7 @@ class MainPage(QMainWindow):
         Args:
             downloaded_picture_path (str): Path to the downloaded picture.
         """
-        if self.gallery_page.directory_name:
+        if self.gallery_page and self.gallery_page.directory_name:
             # Copy file to current directory
             if os.path.exists(downloaded_picture_path):
                 shutil.move(

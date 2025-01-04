@@ -17,7 +17,7 @@ class ImageDownloaderThread(QThread):
     DOWNLOAD_DIR = "."
     INTERVAL = 5
 
-    COMMAND = f"--outputdir {DOWNLOAD_DIR} --ifexists uniquename --ipaddress {CAMERA_IP} --realtimedownload only --logginglevel verbose --cameratransferlist exitifnotavail"
+    COMMAND = f"--outputdir {DOWNLOAD_DIR} --ifexists uniquename --ipaddress {CAMERA_IP} --realtimedownload only --logginglevel verbose --cameratransferlist ignore"
 
     def __init__(self):
         super().__init__()
