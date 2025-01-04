@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QWidget,
     QTextEdit,
+    QCompleter,
     QLabel,
     QFileDialog,
     QStackedWidget,
@@ -20,9 +21,10 @@ from PySide6.QtWidgets import (
     QTabWidget,
     QStackedLayout,
     QMessageBox,
+
 )
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt, QStringListModel
 
 from ui.pages.image_view_and_edit import ImageViewEdit
 from ui.pages.gallery import GalleryPage
@@ -84,6 +86,12 @@ class MainPage(QMainWindow):
         self.path_search.setFixedHeight(2.5 * font_size)
         self.path_search.textChanged.connect(self.path_search_text_change)
         self.path_cleared = False
+        self.completer = QCompleter(self.path_search)
+        self.completer.setWidget(self.path_search)  # Attach completer to QTextEdit
+        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.model = QStringListModel()
+        self.completer.setModel(self.model)
+        self.completer.activated.connect(self.on_match_selected)
 
         self.button_open = QPushButton("Open Folder")
         self.button_open.setFixedHeight(self.path_search.height() - 10)
@@ -249,27 +257,40 @@ class MainPage(QMainWindow):
             self.path_search.setText("")
             self.path_search.clear()
 
-        text = self.path_search.toPlainText()
-        potential_matches = match_pattern_in_list(self.folders_list, text)
+        text = self.path_search.toPlainText().strip()
+        if os.path.exists(self.default_path) and text != "":
+            matches = [
+                os.path.join(self.default_path, f) for f in os.listdir(self.default_path)
+                if text.lower() in f.lower()
+            ]
 
-        if potential_matches and len(potential_matches) == 1:
-            self.directory_name = os.path.join(self.default_path, potential_matches[0])
+            if len(matches) >= 1:
+                self.show_completions(matches)
+            else:
+                self.completer.popup().hide()
 
-            # Add Gallery widget in TabWidget
-            self.tab_widget.setStyleSheet("")
+    def on_match_selected(self, selected_match):
+        """Event when the user selects a directory to load
+        """
+        self.path_search.setPlainText(os.path.basename(selected_match))
+        self.completer.popup().hide()
+        self.directory_name = selected_match
 
-            if not self.gallery_page:
-                self.gallery_page = GalleryPage()
-                self.gallery_page.double_click_signal.connect(self.load_image)
-                self.gallery_page.collage_click_signal.connect(self.load_collage)
+        # Add Gallery widget in TabWidget
+        self.tab_widget.setStyleSheet("")
 
-            self.tab_widget.insertTab(
-                0,
-                self.gallery_page,
-                "Gallery",
-            )
-            self.gallery_page.directory_name = self.directory_name
-            self.gallery_page.gallery_preview.update_directory(self.directory_name)
+        if not self.gallery_page:
+            self.gallery_page = GalleryPage()
+            self.gallery_page.double_click_signal.connect(self.load_image)
+            self.gallery_page.collage_click_signal.connect(self.load_collage)
+
+        self.tab_widget.insertTab(
+            0,
+            self.gallery_page,
+            "Gallery",
+        )
+        self.gallery_page.directory_name = self.directory_name
+        self.gallery_page.gallery_preview.update_directory(self.directory_name)
 
     def open_folder_pressed(self):
         """Button pressed event
@@ -296,31 +317,50 @@ class MainPage(QMainWindow):
         self.gallery_page.directory_name = self.directory_name
         self.gallery_page.gallery_preview.update_directory(self.directory_name)
 
+    def show_completions(self, matches):
+        self.model.setStringList(matches)  # Set matched items to the QCompleter
+        self.completer.complete()  # Show the completion popup
+
     def create_folder_pressed(self):
         """Create folder if user asks to"""
         text = self.path_search.toPlainText()
 
-        if os.path.exists(os.path.join(self.default_path, text)):
-            QMessageBox.warning(
-                title="Create folder",
-                text="Path already exists",
-                button0=QPushButton(text="Close"),
-                button1=QPushButton(text="Overwrite"),
+        new_directory = os.path.join(self.default_path, text)
+
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Warning)
+        msg_box.setWindowTitle("Create new folder.")
+        msg_box.setText("Do you want to proceed? Make sure the folder doesn't already exist.")
+        msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg_box.setDefaultButton(QMessageBox.No)
+
+        # Show the message box and get the user's response
+        response = msg_box.exec_()
+
+        # Handle the response
+        if response == QMessageBox.Yes:
+            os.makedirs(new_directory)#, exist_ok=True)
+
+            self.update_folders_list()
+
+            if not self.gallery_page:
+                self.tab_widget.setStyleSheet("")
+                self.gallery_page = GalleryPage()
+                self.gallery_page.double_click_signal.connect(self.load_image)
+                self.gallery_page.collage_click_signal.connect(self.load_collage)
+
+            self.tab_widget.insertTab(
+                0,
+                self.gallery_page,
+                "Gallery",
             )
+            self.directory_name = new_directory
+            self.gallery_page.directory_name = new_directory
+            self.gallery_page.gallery_preview.update_directory(new_directory)
 
-        else:
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Question)
-            msg_box.setWindowTitle("Create Folder")
-            msg_box.setText("Do you want to proceed?")
-            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            msg_box.setDefaultButton(QMessageBox.No)
+        elif response == QMessageBox.No:
+            return
 
-            # Show the message box and get the user's response
-            response = msg_box.exec_()
-
-            # Handle the response
-            if response == QMessageBox.Yes:
-                print("User selected Yes!")
-            elif response == QMessageBox.No:
-                print("User selected No!")
+    def update_folders_list(self):
+        """Updates folder list in case new folders are created"""
+        self.folders_list = os.listdir(self.default_path)
