@@ -39,13 +39,12 @@ class ImagePreview(QWidget):
 
         self.layout = QVBoxLayout()
         self.image_container = QLabel()
-        self.image_container.setToolTip(self.name)
         self.image_container.setAlignment(Qt.AlignCenter)
         if image_preview_flag:
+            self.image_container.setToolTip(self.name)
             self.checkbox = QCheckBox()
             self.image_container.setStyleSheet("border: 1px solid gray;")
             self.layout.setContentsMargins(20, 20, 20, 20)
-            # self.text_edit = QTextEdit("")
             self.layout.addWidget(self.checkbox)
         else:
             self.enterEvent = self.mouseMoveEvent
@@ -64,12 +63,19 @@ class ImagePreview(QWidget):
         pixmap = QPixmap(self.q_image)
         self.image_container.setPixmap(
             pixmap.scaled(
-                320,
-                240,
+                self.width() / 2,
+                self.height() / 2,
                 Qt.KeepAspectRatio,
                 Qt.SmoothTransformation,
             )
         )
+
+    def resizeEvent(self, event):
+        """Resize event.
+        Update the image to fit the new size of the widget.
+        """
+        # self.update_image()
+        super().resizeEvent(event)
 
     def enterEvent(self, event):
         """Mouse Enter event"""

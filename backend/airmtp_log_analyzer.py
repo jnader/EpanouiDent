@@ -6,6 +6,7 @@ import os
 import time
 from PySide6.QtCore import QThread, Signal
 
+
 class AirMTPLogAnalyzer(QThread):
     camera_detected = Signal(str, str)
     camera_disconnected = Signal(bool)
@@ -26,7 +27,7 @@ class AirMTPLogAnalyzer(QThread):
             with open(self.LOG_FILE, "r") as f:
                 data = [line.rstrip("\n") for line in f.readlines()]
             if data and len(data) > self.logs_line_count:
-                self.latest_logs = "".join(data[self.logs_line_count:])
+                self.latest_logs = "".join(data[self.logs_line_count :])
                 self.logs_line_count = len(data)
 
                 self.analyze_logs()
@@ -38,14 +39,19 @@ class AirMTPLogAnalyzer(QThread):
         """
         if "Camera Model" in self.latest_logs:
             # TODO: Replace with regexp
-            camera_model = self.latest_logs.split("Camera Model")[1].split("\"")[1]
-            serial_number = self.latest_logs.split("S/N")[-1].split("\"")[1]
+            camera_model = self.latest_logs.split("Camera Model")[1].split('"')[1]
+            serial_number = self.latest_logs.split("S/N")[-1].split('"')[1]
             self.camera_detected.emit(camera_model, serial_number)
             self.camera_detected_flag = True
         elif "DSC" in self.latest_logs and "[size = " in self.latest_logs:
-            downloaded_file_path = self.latest_logs.split("[size = ")[0].split("100%")[-1].replace(" ", "")
+            downloaded_file_path = (
+                self.latest_logs.split("[size = ")[0].split("100%")[-1].replace(" ", "")
+            )
             self.download_signal.emit(downloaded_file_path)
-        elif "Delaying 5 seconds before retrying" in self.latest_logs and self.camera_detected_flag:
+        elif (
+            "Delaying 5 seconds before retrying" in self.latest_logs
+            and self.camera_detected_flag
+        ):
             self.camera_detected_flag = False
             self.camera_disconnected.emit(True)
         else:

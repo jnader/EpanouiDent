@@ -10,7 +10,6 @@ from typing import List
 from PySide6.QtCore import *
 from PySide6.QtWidgets import QWidget, QLabel, QSlider, QVBoxLayout, QGridLayout
 from PySide6.QtGui import QPixmap, QDropEvent, QDragEnterEvent, QImageReader, QImage
-from backend.background_removal import remove_background
 
 from ui.widgets.image_preview import ImagePreview
 
@@ -42,7 +41,7 @@ class CollagePreview(QWidget):
         self.image_names = []
         self.image_containers = []
         self.selected_images = []
-        self.layout = QGridLayout()
+        self.grid_layout = QGridLayout()
 
         self.image_path_list = image_path_list
 
@@ -62,7 +61,6 @@ class CollagePreview(QWidget):
         if the user changes it, the collage changes from
         nX2 to mX3 for example, etc...
         """
-        rows = len(self.images) // 2
         cols = 2
 
         for id, img in enumerate(self.images):
@@ -85,9 +83,9 @@ class CollagePreview(QWidget):
             )
             self.image_containers.append(image_container)
 
-            self.layout.addWidget(self.image_containers[-1], i, j)
+            self.grid_layout.addWidget(self.image_containers[-1], i, j)
 
-        self.setLayout(self.layout)
+        self.setLayout(self.grid_layout)
 
     def setup(self):
         """Setup the container having this effect"""

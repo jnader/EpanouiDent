@@ -73,7 +73,7 @@ class MainPage(QMainWindow):
         self.tab_widget.setTabPosition(QTabWidget.West)
         self.tab_widget.tabCloseRequested.connect(self.close_tab)
         self.tab_widget.setStyleSheet(
-            "background-image: url(/home/joudy/Pictures/logo.png); background-repeat: no-repeat; background-position: center;"
+            "background-image: url(logo.png); background-repeat: no-repeat; background-position: center;"
         )
         v_layout.addWidget(self.tab_widget, stretch=29)
 
@@ -111,7 +111,6 @@ class MainPage(QMainWindow):
             "}"
         )
         self.camera_detected_indicator.setChecked(False)
-        self.camera_detected_indicator.setCheckable(False)
         h_layout.addWidget(label)
         h_layout.addWidget(self.path_search)
         h_layout.addWidget(self.button_create)
@@ -160,7 +159,8 @@ class MainPage(QMainWindow):
         self.camera_model = camera_model
         self.camera_serial = serial_number
         self.camera_detected_indicator.setChecked(True)
-        print(self.camera_model, self.camera_serial)
+        self.label_camera_model.setText(f"Model: {self.camera_model}")
+        self.label_camera_serial.setText(f"Serial: {self.camera_serial}")
 
     def camera_disconnected(self, flag: bool):
         """Handler for camera disconnection
@@ -171,6 +171,8 @@ class MainPage(QMainWindow):
         self.camera_model = ""
         self.camera_serial = ""
         self.camera_detected_indicator.setChecked(False)
+        self.label_camera_model.setText(f"Model: {self.camera_model}")
+        self.label_camera_serial.setText(f"Serial: {self.camera_serial}")
 
     def picture_downloaded(self, downloaded_picture_path: str):
         """Handler of downloaded picture signal.
@@ -210,7 +212,7 @@ class MainPage(QMainWindow):
         """
         if index == 0 and self.opened_tab == 0:
             self.tab_widget.setStyleSheet(
-                "background-image: url(/home/joudy/Pictures/logo.png); background-repeat: no-repeat; background-position: center;"
+                "background-image: url(logo.png); background-repeat: no-repeat; background-position: center;"
             )
             self.tab_widget.removeTab(index)
             return
@@ -266,6 +268,7 @@ class MainPage(QMainWindow):
                 self.gallery_page,
                 "Gallery",
             )
+            self.gallery_page.directory_name = self.directory_name
             self.gallery_page.gallery_preview.update_directory(self.directory_name)
 
     def open_folder_pressed(self):
@@ -290,6 +293,7 @@ class MainPage(QMainWindow):
             self.gallery_page,
             "Gallery",
         )
+        self.gallery_page.directory_name = self.directory_name
         self.gallery_page.gallery_preview.update_directory(self.directory_name)
 
     def create_folder_pressed(self):

@@ -3,7 +3,7 @@ Page containing image gallery widget and directory selector, etc...
 """
 
 import os
-from PySide6.QtCore import QFileSystemWatcher, Signal
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QWidget,
     QScrollArea,
@@ -41,7 +41,6 @@ class GalleryPage(QWidget):
         super().__init__()
 
         self.directory_name = None
-        self.directory_watcher = None
 
         layout = QVBoxLayout()
         h_layout = QHBoxLayout()
@@ -76,10 +75,6 @@ class GalleryPage(QWidget):
     def sync_diff(self):
         """Sync gallery widget for new files in the directory."""
         self.gallery_preview.sync_diff()
-
-    def directory_changed_event(self, files):
-        """Directory changed event"""
-        self.gallery_preview.update_directory(self.directory_name)
 
     def show_collage_button(self, state: bool):
         """Show collage button signal callback.
