@@ -53,29 +53,8 @@ class GalleryPage(QWidget):
         self.gallery_preview = Gallery("")
         self.scroll_area.setWidget(self.gallery_preview)
 
-        label = QLabel("Folder: ")
-
-        self.path_search = QTextEdit("")
-        font_size = self.path_search.fontInfo().pixelSize()
-        self.path_search.setFixedHeight(2.5 * font_size)
-        self.path_search.textChanged.connect(self.path_search_text_change)
-        self.path_cleared = False
-
-        self.button_explore = QPushButton("Open Folder")
-        self.button_explore.setFixedHeight(self.path_search.height() - 10)
-        # self.button_explore.setIcon(QIcon.fromTheme("folder"))
-        self.button_explore.pressed.connect(self.button_pressed)
-
-        h_layout.addWidget(label)
-        h_layout.addWidget(self.path_search)
-        h_layout.addWidget(self.button_explore)
-        widget = QWidget()
-        widget.setFixedHeight(2.5 * font_size)
-        widget.setLayout(h_layout)
-
         layout.addWidget(self.collage_button)
         layout.addWidget(self.scroll_area)
-        layout.addWidget(widget)
 
         self.setLayout(layout)
 
@@ -85,29 +64,6 @@ class GalleryPage(QWidget):
         self.gallery_preview.show_collage_button_signal.connect(
             self.show_collage_button
         )
-
-        if not "EPANOUIDENT_DEFAULT_PATH" in os.environ:
-            self.default_path = input("Please select the default path: ")
-            os.environ["EPANOUIDENT_DEFAULT_PATH"] = self.default_path
-        else:
-            self.default_path = os.environ["EPANOUIDENT_DEFAULT_PATH"]
-
-        self.folders_list = os.listdir(self.default_path)
-
-    def button_pressed(self):
-        """Button pressed event
-        Load directory
-        """
-        dialog = QFileDialog(self)
-        self.directory_name = dialog.getExistingDirectory(
-            self, "Open Folder", os.path.expanduser("~")
-        )
-
-        dialog.hide()
-
-        self.directory_watcher = QFileSystemWatcher(self.directory_name)
-        self.directory_watcher.directoryChanged.connect(self.directory_changed_event)
-        self.gallery_preview.update_directory(self.directory_name)
 
     def image_selected(self, list_of_names: List[str]):
         """Image selection event."""
@@ -140,24 +96,3 @@ class GalleryPage(QWidget):
     def create_collage_page(self):
         """Collage button clicked"""
         self.collage_click_signal.emit(self.images_selected)
-
-    def path_search_text_change(self):
-        """Search path text edit change
-
-        Args:
-            text (str): Current text in QTextEdit
-        """
-        if (
-            not self.path_cleared
-            and "Search for a folder here..." in self.path_search.toPlainText()
-        ):
-            self.path_cleared = True
-            self.path_search.setText("")
-            self.path_search.clear()
-
-        text = self.path_search.toPlainText()
-        potential_matches = match_pattern_in_list(self.folders_list, text)
-
-        if potential_matches and len(potential_matches) == 1:
-            self.directory_name = os.path.join(self.default_path, potential_matches[0])
-            self.gallery_preview.update_directory(self.directory_name)

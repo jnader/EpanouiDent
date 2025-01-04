@@ -11,6 +11,8 @@ from PySide6.QtWidgets import (
     QPushButton,
     QWidget,
     QTextEdit,
+    QLabel,
+    QFileDialog,
     QStackedWidget,
     QToolBar,
     QMenuBar,
@@ -19,15 +21,18 @@ from PySide6.QtWidgets import (
     QStackedLayout,
     QMessageBox,
 )
-from PySide6.QtWidgets import QHBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import QSize, Qt
 
 from ui.pages.image_view_and_edit import ImageViewEdit
 from ui.pages.gallery import GalleryPage
+from ui.widgets.gallery import Gallery
 from ui.widgets.collage import CollagePreview
 
 from backend.background_downloader import ImageDownloaderThread
 from backend.airmtp_log_analyzer import AirMTPLogAnalyzer
+
+from backend.utils import match_pattern_in_list
 
 
 class MainPage(QMainWindow):
@@ -45,28 +50,51 @@ class MainPage(QMainWindow):
         """Constructor"""
         super().__init__()
 
+        if not "EPANOUIDENT_DEFAULT_PATH" in os.environ:
+            self.default_path = input("Please select the default path: ")
+            os.environ["EPANOUIDENT_DEFAULT_PATH"] = self.default_path
+        else:
+            self.default_path = os.environ["EPANOUIDENT_DEFAULT_PATH"]
+
+        self.folders_list = os.listdir(self.default_path)
+
         self.opened_tab = 0
         self.base_path = base_path
         self.setWindowTitle(title)
         # self.setFixedSize(size)
         self.setMinimumSize(size)
 
-        h_layout = QHBoxLayout()
+        v_layout = QVBoxLayout()
 
-        self.gallery_page = GalleryPage()
-        self.gallery_page.double_click_signal.connect(self.load_image)
-        self.gallery_page.collage_click_signal.connect(self.load_collage)
+        self.gallery_page = None
 
         self.tab_widget = QTabWidget()
         self.tab_widget.setTabsClosable(True)
         self.tab_widget.setTabPosition(QTabWidget.West)
         self.tab_widget.tabCloseRequested.connect(self.close_tab)
-        self.tab_widget.addTab(
-            self.gallery_page,
-            "Gallery",
+        self.tab_widget.setStyleSheet(
+            "background-image: url(/home/joudy/Pictures/logo.png); background-repeat: no-repeat; background-position: center;"
         )
-        h_layout.addWidget(self.tab_widget)
+        v_layout.addWidget(self.tab_widget, stretch=29)
 
+        h_layout = QHBoxLayout()
+        label = QLabel("Folder: ")
+        self.path_search = QTextEdit("")
+        font_size = self.path_search.fontInfo().pixelSize()
+        self.path_search.setFixedHeight(2.5 * font_size)
+        self.path_search.textChanged.connect(self.path_search_text_change)
+        self.path_cleared = False
+
+        self.button_open = QPushButton("Open Folder")
+        self.button_open.setFixedHeight(self.path_search.height() - 10)
+        self.button_open.pressed.connect(self.open_folder_pressed)
+
+        self.button_create = QPushButton("Create Folder")
+        self.button_create.setFixedHeight(self.path_search.height() - 10)
+        self.button_create.pressed.connect(self.create_folder_pressed)
+
+        self.label_camera_model = QLabel("Camera Model: ")
+        self.label_camera_serial = QLabel("Camera Serial: ")
         self.camera_detected_indicator = QRadioButton()
         self.camera_detected_indicator.setStyleSheet(
             "QRadioButton::indicator:checked{"
@@ -83,11 +111,31 @@ class MainPage(QMainWindow):
             "}"
         )
         self.camera_detected_indicator.setChecked(False)
-        h_layout.addWidget(self.camera_detected_indicator)
+        self.camera_detected_indicator.setCheckable(False)
+        h_layout.addWidget(label)
+        h_layout.addWidget(self.path_search)
+        h_layout.addWidget(self.button_create)
+        h_layout.addWidget(self.button_open)
 
-        h_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # Camera status widget
+        camera_v_layout = QVBoxLayout()
+        camera_v_layout.addWidget(self.camera_detected_indicator)
+        camera_v_layout.addWidget(self.label_camera_model)
+        camera_v_layout.addWidget(self.label_camera_serial)
+        camera_status_widget = QWidget()
+        camera_status_widget.setLayout(camera_v_layout)
+
+        h_layout.addWidget(camera_status_widget)
+
+        bottom_widget = QWidget()
+        bottom_widget.setLayout(h_layout)
+        v_layout.addWidget(
+            bottom_widget, stretch=1, alignment=Qt.AlignmentFlag.AlignBottom
+        )
+
+        v_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_widget = QWidget()
-        main_widget.setLayout(h_layout)
+        main_widget.setLayout(v_layout)
         self.setCentralWidget(main_widget)
 
         # Image Downloader Thread
@@ -160,7 +208,11 @@ class MainPage(QMainWindow):
         Args:
             index (int): Index of the tab being closed
         """
-        if index == 0:
+        if index == 0 and self.opened_tab == 0:
+            self.tab_widget.setStyleSheet(
+                "background-image: url(/home/joudy/Pictures/logo.png); background-repeat: no-repeat; background-position: center;"
+            )
+            self.tab_widget.removeTab(index)
             return
         self.tab_widget.removeTab(index)
         self.opened_tab -= 1
@@ -181,6 +233,90 @@ class MainPage(QMainWindow):
         self.tab_widget.setCurrentIndex(self.tab_widget.count() - 1)
         self.opened_tab += 1
 
-    def receive_photo(self, request):
-        """Receive photo via HTTP"""
-        print("photo received")
+    def path_search_text_change(self):
+        """Search path text edit change
+
+        Args:
+            text (str): Current text in QTextEdit
+        """
+        if (
+            not self.path_cleared
+            and "Search for a folder here..." in self.path_search.toPlainText()
+        ):
+            self.path_cleared = True
+            self.path_search.setText("")
+            self.path_search.clear()
+
+        text = self.path_search.toPlainText()
+        potential_matches = match_pattern_in_list(self.folders_list, text)
+
+        if potential_matches and len(potential_matches) == 1:
+            self.directory_name = os.path.join(self.default_path, potential_matches[0])
+
+            # Add Gallery widget in TabWidget
+            self.tab_widget.setStyleSheet("")
+
+            if not self.gallery_page:
+                self.gallery_page = GalleryPage()
+                self.gallery_page.double_click_signal.connect(self.load_image)
+                self.gallery_page.collage_click_signal.connect(self.load_collage)
+
+            self.tab_widget.insertTab(
+                0,
+                self.gallery_page,
+                "Gallery",
+            )
+            self.gallery_page.gallery_preview.update_directory(self.directory_name)
+
+    def open_folder_pressed(self):
+        """Button pressed event
+        Load directory
+        """
+        dialog = QFileDialog(self)
+        self.directory_name = dialog.getExistingDirectory(
+            self, "Open Folder", os.path.expanduser("~")
+        )
+
+        dialog.hide()
+
+        if not self.gallery_page:
+            self.tab_widget.setStyleSheet("")
+            self.gallery_page = GalleryPage()
+            self.gallery_page.double_click_signal.connect(self.load_image)
+            self.gallery_page.collage_click_signal.connect(self.load_collage)
+
+        self.tab_widget.insertTab(
+            0,
+            self.gallery_page,
+            "Gallery",
+        )
+        self.gallery_page.gallery_preview.update_directory(self.directory_name)
+
+    def create_folder_pressed(self):
+        """Create folder if user asks to"""
+        text = self.path_search.toPlainText()
+
+        if os.path.exists(os.path.join(self.default_path, text)):
+            QMessageBox.warning(
+                title="Create folder",
+                text="Path already exists",
+                button0=QPushButton(text="Close"),
+                button1=QPushButton(text="Overwrite"),
+            )
+
+        else:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Question)
+            msg_box.setWindowTitle("Create Folder")
+            msg_box.setText("Do you want to proceed?")
+            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            msg_box.setDefaultButton(QMessageBox.No)
+
+            # Show the message box and get the user's response
+            response = msg_box.exec_()
+
+            # Handle the response
+            if response == QMessageBox.Yes:
+                print("User selected Yes!")
+            elif response == QMessageBox.No:
+                print("User selected No!")
