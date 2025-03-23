@@ -11,3 +11,10 @@ setx EPANOUIDENT_DEFAULT_PATH <folder_containing_all_patients_folders>
 ```
 curl --create-dirs -L -o "%HOMEPATH%/.u2net/u2net.onnx" "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx"
 ```
+
+# Linux:
+- In a new terminal:
+```
+chmod +x install_scripts/install.sh
+./install.sh
+```
