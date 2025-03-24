@@ -1,18 +1,21 @@
 # Image handling
-[X] FLIP
-[X] Add lines (horizontal, vertical, obliques)
-[X] Add Rectangles
-[X] Add Circles
-[X] Add brush size control slider in menu
-[X] Add TEXT
-[X] Fix UI bugs when maniuplating image
-    [X] /!\ The position is w.r.t. to self/object not image.
 [X] Add basic collage (2 and 4 images in a grid only)
-[X] Add search bar in the main window to search for (NOM PRENOM of the patient's folder)
-    [ ] Focus by default to show user he should be writing
-[X] Use airnefcmd to start connection at GUI startup in a seperate process
-[X] Add default/patients folder as environment variable
-[X] Disable Remove Background as long as the picture without bg is not generated
+    [ ] Add a page with a save button
+    [ ] Make images close to each other (remove margins)
+[ ] USE GROUPBOX IN IMAGE EDIT MENU to avoid logic
+[\] REFACTOR GALLERY PAGE & MAIN PAGE
+    [\] Add text search mechanism to MAIN PAGE
+    [\] Add create button / open folder to MAIN PAGE
+    [\] Add radio button + camera model + camera serial to MAIN PAGE
+    [\] Remove text search from GALLERY PAGE
+    [ ] NO MORE NEED FOR GALLERY PAGE, only GALLERY WIDGET. WRONG
+
+[ ] CAMERA ISSUES
+    [ ] Support 2 different cameras connections
+    [ ] SD CARD is replaced or inserted...
+
+
+[ ] Focus by default on the search bar to show user he should be writing
 [\] Reduce time in load images (seperate process to remove background)
     [\] Reduce background removal process wait by running it in the background.
         [ ] Run it asynchronously
@@ -20,6 +23,12 @@
 [\] Add undo/redo
     [X] Undo
     [ ] Redo
+[ ] Add red/green circle for camera detected with 2 labels
+    [\] red/green circle
+        [ ] Modify its location in the window
+    [X] modelStr
+    [X] serialNumber
+[ ] remove_background uses original picture and not current_pixmap (Should be handled by seperate thread)
 [ ] Improve drawing frequency (since there's a small lag on images)
 [ ] Improve text with QTextEdit
 [ ] CROP (??)
@@ -33,12 +42,10 @@
 # Application
 [\] Handle basic exceptions (Folder not found, any other exception)
     [ ] Folder shouldn't be loaded
-[ ] Create packaging branch in which I created github jobs to package for windows/mac/linux
+[\] Create packaging branch in which I created github jobs to package for windows/mac/linux
+[ ] Use logger instead of prints...
 /!\ BUGS
-[X] Scroll to zoom is not working correctly now
-[X] Text brush size
 [ ] Start-up/close too slow
-[ ] remove_background uses original picture and not current_pixmap (Should be handled by seperate thread)
 [ ] Weird image handling issues sometimes (bmp and png file formats)
 
 # DNN
